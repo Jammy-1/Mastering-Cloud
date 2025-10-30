@@ -26,4 +26,4 @@ jobs:
             git reset --hard origin/main
             sudo cp -r /var/www/html/site/* /var/www/html/
             sudo systemctl restart apache2
-            echo "✅ Website updated successfully!"
+            echo "Website updated successfully!"
