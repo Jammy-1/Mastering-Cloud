@@ -1,0 +1,29 @@
+name: 🚀 Git Update Web Server
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: SSH into VM and update site
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: azureuser
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Pulling latest website updates..."
+            cd /var/www/html/site
+            git fetch origin main
+            git reset --hard origin/main
+            sudo cp -r /var/www/html/site/* /var/www/html/
+            sudo systemctl restart apache2
+            echo "✅ Website updated successfully!"
