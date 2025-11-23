@@ -1,0 +1,13 @@
+variable "host_pool_name" { type = string }
+variable "host_pool_type" { type = string }
+variable "load_balancer_type" { type = string }
+variable "application_group_name" { type = string }
+variable "workspace_name" { type = string }
+variable "location" { type = string }
+variable "resource_group_name" { type = string }
+variable "initial_instance_count" { type = number }
+variable "min_instance_count" { type = number }
+variable "max_instance_count" { type = number }
+variable "admin_username" { type = string }
+variable "admin_password" { type = string }
+variable "avd_subnet_id" { type = string }

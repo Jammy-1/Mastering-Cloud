@@ -34,20 +34,4 @@ resource "azurerm_windows_virtual_machine_scale_set" "avd_vmss" {
     storage_account_type = "StandardSSD_LRS"
     disk_size_gb         = 127
   }
-
-  extension {
-    name                 = "FSLogixConfiguration"
-    publisher            = "Microsoft.Compute"
-    type                 = "CustomScriptExtension"
-    type_handler_version = "1.10"
-
-    settings = jsonencode({
-      commandToExecute = format(
-        "powershell -ExecutionPolicy Bypass -Command \"New-Item -Path 'HKLM:\\SOFTWARE\\FSLogix' -Force; `nSet-ItemProperty -Path 'HKLM:\\SOFTWARE\\FSLogix' -Name 'VHDLocations' -Value '\\\\%s.file.core.windows.net\\%s'; `nSet-ItemProperty -Path 'HKLM:\\SOFTWARE\\FSLogix' -Name 'Enabled' -Value 1; `nSet-ItemProperty -Path 'HKLM:\\SOFTWARE\\FSLogix' -Name 'MaxVHDSizeInMB' -Value %d;\"",
-        var.fslogix_storage_account,
-        var.fslogix_file_share,
-        var.fslogix_vhdx_size_gb * 1024
-      )
-    })
-  }
 }

@@ -7,7 +7,6 @@ resource "azurerm_virtual_desktop_host_pool" "this" {
   preferred_app_group_type   = "Desktop"
   maximum_sessions_allowed   = 10
   friendly_name              = var.host_pool_name
-  description                = "Terraform AVD Host Pool (Azure AD join)"
 }
 
 resource "azurerm_virtual_desktop_application_group" "desktop" {
