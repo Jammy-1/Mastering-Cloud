@@ -1,3 +1,4 @@
+# Auto Scale
 resource "azurerm_monitor_autoscale_setting" "vmss_autoscale" {
   name                = "${var.host_pool_name}-autoscale"
   location            = var.location

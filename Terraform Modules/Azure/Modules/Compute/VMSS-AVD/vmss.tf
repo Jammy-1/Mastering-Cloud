@@ -1,3 +1,4 @@
+# VMSS
 resource "azurerm_windows_virtual_machine_scale_set" "avd_vmss" {
   name                = "${substr(var.host_pool_name, 0, 3)}-vmss"
   location            = var.location
