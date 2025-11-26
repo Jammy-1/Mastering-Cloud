@@ -4,6 +4,7 @@ resource "azurerm_virtual_network" "vnet-aad" {
   resource_group_name = var.resource_group
   location            = var.location
   address_space       = var.address_spaces
+  dns_servers         = var.dns_servers
 }
 # Subnet
 resource "azurerm_subnet" "subnet" {
