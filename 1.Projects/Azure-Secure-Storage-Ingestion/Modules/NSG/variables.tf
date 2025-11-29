@@ -1,16 +1,6 @@
-# General
-variable "location" { type = string }
-variable "tags" { type = map(string) }
-
-# Resource Groups
-variable "rg_core_name" { type = string }
-variable "rg_network_name" { type = string }
-variable "rg_compute_name" { type = string }
-variable "rg_storage_name" { type = string }
-variable "rg_security_name" { type = string }
-
-# NSG
 variable "nsg_name" { type = string }
+variable "location" { type = string }
+variable "resource_group_name" { type = string }
 
 variable "security_rules" {
   type = list(object({
@@ -25,3 +15,5 @@ variable "security_rules" {
     destination_address_prefix = string
   }))
 }
+
+variable "tags"             { type = map(string) }
