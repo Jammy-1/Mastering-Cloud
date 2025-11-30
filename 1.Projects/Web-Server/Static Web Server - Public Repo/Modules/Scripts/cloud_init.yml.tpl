@@ -21,7 +21,7 @@ runcmd:
 
   # Copy index.html and style.css to the web root
   - [bash, -c, "cp '/opt/myrepo/1.Projects/Web-Server/Static Web Server - Public Repo/Static Site/index.html' /var/www/html/"]
-  - [bash, -c, "cp '/opt/myrepo/1.Projects/Web-Server/Static Web Server - Public Repo/Static Site/style.css' /var/www/html/"]
+  - [bash, -c, "cp '/opt/myrepo/1.Projects/Web-Server/Static Web Server - Public Repo/Static Site/styles.css' /var/www/html/"]
 
   # Set correct permissions for Apache
   - [bash, -c, "chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html"]
