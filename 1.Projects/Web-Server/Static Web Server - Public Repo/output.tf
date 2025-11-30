@@ -19,6 +19,6 @@ output "vmss_id" {
 }
 
 output "public_ip" {
-  description = "Public IP address of the load balancer"
-  value       = module.lb.public_ip
+  description = "Web Server Address"
+  value       = "http://${module.lb.public_ip}"
 }

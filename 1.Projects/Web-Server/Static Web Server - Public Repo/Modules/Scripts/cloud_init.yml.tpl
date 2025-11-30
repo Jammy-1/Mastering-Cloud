@@ -1,26 +1,32 @@
+#cloud-config
 package_update: true
+package_upgrade: true
+
 packages:
   - apache2
   - git
 
 runcmd:
-  # Update
-  - [bash, -c, "apt-get update -y && apt-get upgrade -y"]
-  # Start Apache
+  # Enable and start Apache
   - [bash, -c, "systemctl enable apache2 && systemctl start apache2"]
 
-  - [
-      bash,
-      -c,
-      "mkdir -p /var/www/html && cd /var/www/html && \
-      git clone --depth 1 '${GITHUB_REPO}' site || \
-      (cd site && git pull origin '${GITHUB_BRANCH}')",
-    ]
+  # Remove default Apache files
+  - [bash, -c, "rm -rf /var/www/html/*"]
 
-  - [
-      bash,
-      -c,
-      "cp -r /var/www/html/site/* /var/www/html/ && systemctl restart apache2",
-    ]
+  # Create a folder to clone the GitHub repo
+  - [bash, -c, "mkdir -p /opt/myrepo"]
 
-final_message: "Web server is configured and running!"
+  # Clone the full GitHub repo into the new folder
+  - [bash, -c, "git clone --branch ${GITHUB_BRANCH} --depth 1 ${GITHUB_REPO} /opt/myrepo"]
+
+  # Copy index.html and style.css to the web root
+  - [bash, -c, "cp '/opt/myrepo/1.Projects/Web-Server/Static Web Server - Public Repo/Static Site/index.html' /var/www/html/"]
+  - [bash, -c, "cp '/opt/myrepo/1.Projects/Web-Server/Static Web Server - Public Repo/Static Site/style.css' /var/www/html/"]
+
+  # Set correct permissions for Apache
+  - [bash, -c, "chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html"]
+
+  # Remove the cloned repo folder to keep the system clean
+  - [bash, -c, "rm -rf /opt/myrepo"]
+
+final_message: "Web Server Running"

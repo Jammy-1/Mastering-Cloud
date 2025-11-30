@@ -1,4 +1,4 @@
-name: 🚀 Git Update Web Server
+name: Git Update Web Server
 on:
   push:
     branches:
