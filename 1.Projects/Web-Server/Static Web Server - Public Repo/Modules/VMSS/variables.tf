@@ -1,5 +1,7 @@
 variable "resource_group_name" { type = string }
 variable "location" { type = string }
+variable "zones" { type = list(string) }
+
 variable "subnet_id" { type = string }
 variable "lb_backend_address_pool_id" { type = string }
 

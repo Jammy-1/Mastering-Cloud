@@ -1,3 +1,1 @@
-output "name" {
-  value = azurerm_resource_group.this.name
-}
+output "name" { value = azurerm_resource_group.this.name }

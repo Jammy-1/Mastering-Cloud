@@ -1,7 +1,9 @@
+# VMSS
 resource "azurerm_linux_virtual_machine_scale_set" "this" {
-  name                = "vmss-web"
+  name                = "vmss-web-${var.location}"
   resource_group_name = var.resource_group_name
   location            = var.location
+  zones               = var.zones
   sku                 = var.vm_size
   instances           = var.instance_count
   admin_username      = var.vm_admin_username
@@ -35,10 +37,11 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
     storage_account_type = "Standard_LRS"
   }
 
+  # Script
   custom_data = base64encode(
     templatefile("${path.module}/../Scripts/cloud_init.yml.tpl", {
-      GITHUB_REPO    = var.github_repo
-      GITHUB_BRANCH  = var.github_branch
+      GITHUB_REPO   = var.github_repo
+      GITHUB_BRANCH = var.github_branch
     })
   )
 
