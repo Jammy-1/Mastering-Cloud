@@ -37,3 +37,9 @@ output "backend_pool_name" {
     region => lb.backend_address_pool_name
   }
 }
+
+output "webserver_ips" {
+  value = [
+    for region in sort(keys(module.lb)) : "http://${module.lb[region].public_ip}"
+  ]
+}
