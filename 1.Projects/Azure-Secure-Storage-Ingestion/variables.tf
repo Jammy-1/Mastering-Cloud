@@ -12,6 +12,11 @@ variable "rg_security_name" { type = string }
 # NSG
 variable "nsg_name" { type = string }
 
+variable "cloud_cidr" { type = string }
+variable "on_prem_cidr" { type = string }
+variable "storage_private_endpoint_subnet_cidr" { type = string }
+variable "dns_servers_cidr" { type = list(string) }
+
 variable "security_rules" {
   type = list(object({
     name                       = string
@@ -24,4 +29,5 @@ variable "security_rules" {
     source_address_prefix      = string
     destination_address_prefix = string
   }))
+  default = [] 
 }

@@ -12,14 +12,17 @@ module "resource_groups" {
   tags = var.tags
 }
 
-
 # NSG
 module "nsg" {
   source              = "./Modules/NSG"
   nsg_name            = var.nsg_name
   resource_group_name = var.rg_network_name
   location            = var.location
-  security_rules      = var.security_rules
+
+  cloud_cidr = var.cloud_cidr
+  on_prem_cidr = var.on_prem_cidr
+  storage_private_endpoint_subnet_cidr = var.storage_private_endpoint_subnet_cidr
+  security_rules      = []
 
   tags = var.tags
 }

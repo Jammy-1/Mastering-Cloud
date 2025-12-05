@@ -8,7 +8,7 @@ resource "azurerm_network_security_group" "NSG" {
 
 #NSG Security Rules
 resource "azurerm_network_security_rule" "rules" {
-  for_each = { for idx, rule in var.security_rules : idx => rule }
+  for_each = { for r in local.security_rules_to_use : r.name => r }
 
   name                        = each.value.name
   resource_group_name         = var.resource_group_name
@@ -19,10 +19,10 @@ resource "azurerm_network_security_rule" "rules" {
   access                     = each.value.access
   protocol                   = each.value.protocol
 
-  source_port_range          = lookup(each.value, "source_port_range", "*")
-  destination_port_range     = lookup(each.value, "destination_port_range", "*")
-  source_address_prefix      = lookup(each.value, "source_address_prefix", "*")
-  destination_address_prefix = lookup(each.value, "destination_address_prefix", "*")
+  source_port_range          = each.value.source_port_range
+  destination_port_range     = each.value.destination_port_range
+  source_address_prefix      = each.value.source_address_prefix
+  destination_address_prefix = each.value.destination_address_prefix
 
   depends_on = [azurerm_network_security_group.NSG]
 }
