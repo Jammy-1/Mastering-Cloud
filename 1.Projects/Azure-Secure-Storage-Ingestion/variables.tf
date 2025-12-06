@@ -29,5 +29,17 @@ variable "security_rules" {
     source_address_prefix      = string
     destination_address_prefix = string
   }))
-  default = [] 
+  default = []
 }
+
+# Network
+variable "vnet_name" { type = string }
+variable "vm_address_space" { type = list(string) }
+variable "vm_subnet_name" { type = string }
+variable "vm_subnet_cidr" { type = string }
+
+variable "private_endpoint_subnet_name" { type = string }
+variable "private_endpoint_subnet_cidr" { type = string }
+
+variable "gateway_subnet_name" { type = string }
+variable "gateway_subnet_cidr" { type = string }

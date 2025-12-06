@@ -3,7 +3,7 @@ resource "azurerm_network_security_group" "NSG" {
   name                = var.nsg_name
   resource_group_name = var.resource_group_name
   location            = var.location
-  tags = var.tags
+  tags                = var.tags
 }
 
 #NSG Security Rules
@@ -14,10 +14,10 @@ resource "azurerm_network_security_rule" "rules" {
   resource_group_name         = var.resource_group_name
   network_security_group_name = azurerm_network_security_group.NSG.name
 
-  priority                   = each.value.priority
-  direction                  = each.value.direction
-  access                     = each.value.access
-  protocol                   = each.value.protocol
+  priority  = each.value.priority
+  direction = each.value.direction
+  access    = each.value.access
+  protocol  = each.value.protocol
 
   source_port_range          = each.value.source_port_range
   destination_port_range     = each.value.destination_port_range
