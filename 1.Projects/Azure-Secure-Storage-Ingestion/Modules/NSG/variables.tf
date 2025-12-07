@@ -4,7 +4,7 @@ variable "resource_group_name" { type = string }
 variable "tags" { type = map(string) }
 
 variable "cloud_cidr" { type = string }
-variable "on_prem_cidr" { type = string }
+variable "on_prem_public_ip" { type = string }
 variable "storage_private_endpoint_subnet_cidr" { type = string }
 
 

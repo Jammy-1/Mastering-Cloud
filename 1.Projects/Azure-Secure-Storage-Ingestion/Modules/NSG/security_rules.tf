@@ -32,8 +32,20 @@ locals {
       source_port_range          = "*"
       destination_port_range     = "445"
       source_address_prefix      = "*"
-      destination_address_prefix = var.on_prem_cidr
+      destination_address_prefix = var.on_prem_public_ip
     },
+    {
+      name                       = "Allow-VPN-From-OnPrem"
+      priority                   = 50
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = var.on_prem_public_ip
+      destination_address_prefix = "*"
+    },
+
     {
       name                       = "Allow-DNS"
       priority                   = 220
@@ -65,7 +77,7 @@ locals {
       source_port_range          = "*"
       destination_port_range     = "123"
       source_address_prefix      = "*"
-      destination_address_prefix = "0.0.0.0/0"
+      destination_address_prefix = "168.63.129.16/32"
     },
     {
       name                       = "Allow-HTTPS-Updates"
@@ -87,6 +99,17 @@ locals {
       source_port_range          = "*"
       destination_port_range     = "*"
       source_address_prefix      = "Internet"
+      destination_address_prefix = "*"
+    },
+    {
+      name                       = "Deny-All-Other-Outbound"
+      priority                   = 5000
+      direction                  = "Outbound"
+      access                     = "Deny"
+      protocol                   = "*"
+      source_port_range          = "*"
+      destination_port_range     = "*"
+      source_address_prefix      = "*"
       destination_address_prefix = "*"
     }
   ]
