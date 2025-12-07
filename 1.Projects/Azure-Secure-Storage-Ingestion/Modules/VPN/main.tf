@@ -49,7 +49,7 @@ resource "azurerm_virtual_network_gateway_connection" "vpn_connection" {
   virtual_network_gateway_id = azurerm_virtual_network_gateway.vpn_gateway.id
   local_network_gateway_id   = azurerm_local_network_gateway.onprem.id
   type                       = var.vpn_type
-  shared_key                 = var.shared_key
+  shared_key                 = var.vpn_shared_key
   enable_bgp                 = false
   
   tags = var.tags

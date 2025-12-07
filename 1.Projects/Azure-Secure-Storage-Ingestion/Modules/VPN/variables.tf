@@ -21,8 +21,11 @@ variable "on_prem_address_space" { type = string }
 
 # VPN Connection Settings
 variable "vpn_name" { type = string }
-variable "shared_key" { type = string }
 variable "vpn_type" { type = string }
+variable "vpn_shared_key" { 
+    type = string
+    sensitive = true
+}
 
 # Subnet
 variable "gateway_subnet" { type = string }
