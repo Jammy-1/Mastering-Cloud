@@ -13,7 +13,7 @@ variable "rg_security_name" { type = string }
 variable "nsg_name" { type = string }
 
 variable "cloud_cidr" { type = string }
-variable "on_prem_cidr" { type = string }
+variable "on_prem_public_ip" { type = string }
 variable "storage_private_endpoint_subnet_cidr" { type = string }
 variable "dns_servers_cidr" { type = list(string) }
 
@@ -43,3 +43,17 @@ variable "private_endpoint_subnet_cidr" { type = string }
 
 variable "gateway_subnet_name" { type = string }
 variable "gateway_subnet_cidr" { type = string }
+
+# VPN
+variable "vpn_gateway_name" { type = string }
+variable "public_ip_name" { type = string }
+variable "public_ip_allocation_method" { type = string }
+variable "public_ip_sku" { type = string }
+variable "network_vpn_gateway_type" { type = string }
+variable "vpn_gateway_type" { type = string }  
+variable "vpn_sku" { type = string }
+variable "on_prem_gateway_name" { type = string }
+variable "on_prem_address_space" { type = string }
+variable "vpn_name" { type = string }
+variable "shared_key" { type = string }
+variable "vpn_type" { type = string }

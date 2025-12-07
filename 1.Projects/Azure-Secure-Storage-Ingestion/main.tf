@@ -2,7 +2,7 @@
 module "resource_groups" {
   source   = "./Modules/Resource-Groups"
   location = var.location
-
+  
   rg_core_name     = var.rg_core_name
   rg_network_name  = var.rg_network_name
   rg_compute_name  = var.rg_compute_name
@@ -20,7 +20,7 @@ module "nsg" {
   location            = var.location
 
   cloud_cidr                           = var.cloud_cidr
-  on_prem_cidr                         = var.on_prem_cidr
+  on_prem_cidr                         = var.on_prem_public_ip
   storage_private_endpoint_subnet_cidr = var.storage_private_endpoint_subnet_cidr
   security_rules                       = []
 
@@ -50,4 +50,30 @@ module "network" {
   attach_nsg_to_vm_subnet = true
 
   tags = var.tags
+}
+
+# VPN 
+module "vpn" {
+  source = "./modules/vpn"
+  resource_group_name = var.rg_network_name
+  location            = var.location
+  tags                = var.tags
+
+  public_ip_name              = var.public_ip_name
+  public_ip_allocation_method = var.public_ip_allocation_method
+  public_ip_sku               = var.public_ip_sku
+
+  vpn_gateway_name          = var.vpn_gateway_name
+  network_vpn_gateway_type  = var.network_vpn_gateway_type   
+  vpn_gateway_type          = var.vpn_gateway_type           
+  vpn_sku                   = var.vpn_sku                    
+  gateway_subnet            = module.network.gateway_subnet_id
+  
+  on_prem_gateway_name  = var.on_prem_gateway_name
+  on_prem_public_ip     = var.on_prem_public_ip        
+  on_prem_address_space = var.on_prem_address_space    
+
+  vpn_name   = var.vpn_name
+  vpn_type   = var.vpn_type         
+  shared_key = var.shared_key       
 }
