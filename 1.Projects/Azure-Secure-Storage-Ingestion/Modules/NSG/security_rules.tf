@@ -3,7 +3,7 @@ locals {
   default_security_rules = [
     {
       name                       = "Allow-SSH-Admin"
-      priority                   = 100
+      priority                   = 4087
       direction                  = "Inbound"
       access                     = "Allow"
       protocol                   = "Tcp"
@@ -14,7 +14,7 @@ locals {
     },
     {
       name                       = "Allow-Storage-HTTPS"
-      priority                   = 200
+      priority                   = 4093
       direction                  = "Outbound"
       access                     = "Allow"
       protocol                   = "Tcp"
@@ -25,7 +25,7 @@ locals {
     },
     {
       name                       = "Allow-SMB-To-OnPrem"
-      priority                   = 210
+      priority                   = 4092
       direction                  = "Outbound"
       access                     = "Allow"
       protocol                   = "Tcp"
@@ -36,7 +36,7 @@ locals {
     },
     {
       name                       = "Allow-VPN-From-OnPrem"
-      priority                   = 50
+      priority                   = 4094
       direction                  = "Inbound"
       access                     = "Allow"
       protocol                   = "*"
@@ -48,7 +48,7 @@ locals {
 
     {
       name                       = "Allow-DNS"
-      priority                   = 220
+      priority                   = 4091
       direction                  = "Outbound"
       access                     = "Allow"
       protocol                   = "Udp"
@@ -59,7 +59,7 @@ locals {
     },
     {
       name                       = "Allow-DNS-TCP"
-      priority                   = 221
+      priority                   = 4090
       direction                  = "Outbound"
       access                     = "Allow"
       protocol                   = "Tcp"
@@ -70,7 +70,7 @@ locals {
     },
     {
       name                       = "Allow-NTP"
-      priority                   = 230
+      priority                   = 4089
       direction                  = "Outbound"
       access                     = "Allow"
       protocol                   = "Udp"
@@ -81,7 +81,7 @@ locals {
     },
     {
       name                       = "Allow-HTTPS-Updates"
-      priority                   = 240
+      priority                   = 4088
       direction                  = "Outbound"
       access                     = "Allow"
       protocol                   = "Tcp"
@@ -92,7 +92,7 @@ locals {
     },
     {
       name                       = "Deny-Inbound-Internet"
-      priority                   = 4000
+      priority                   = 4095
       direction                  = "Inbound"
       access                     = "Deny"
       protocol                   = "*"
@@ -103,7 +103,7 @@ locals {
     },
     {
       name                       = "Deny-All-Other-Outbound"
-      priority                   = 5000
+      priority                   = 4096
       direction                  = "Outbound"
       access                     = "Deny"
       protocol                   = "*"
