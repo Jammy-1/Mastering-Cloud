@@ -30,6 +30,17 @@ resource "azurerm_key_vault" "kv" {
   tags = var.tags
 }
 
+# Give Storage Managed Identity rights to the CMK
+resource "azurerm_key_vault_access_policy" "storage_identity_policy" {
+  key_vault_id = azurerm_key_vault.kv.id
+  tenant_id    = var.tenant_id
+  object_id    = var.storage_identity_principal_id 
+
+  key_permissions = [
+    "Get", "WrapKey", "UnwrapKey"
+  ]
+}
+
 # Access Tennant ID
 data "azurerm_client_config" "current" {}
 
@@ -49,5 +60,11 @@ resource "azurerm_key_vault_key" "vm_disk_key" {
   key_opts     = ["decrypt", "encrypt", "wrapKey", "unwrapKey"]
 }
 
-
-
+# Storage Account Key
+resource "azurerm_key_vault_key" "storage_cmk" {
+  name         = "storage-cmk-key"
+  key_vault_id = azurerm_key_vault.kv.id
+  key_type     = "RSA"
+  key_size     = 2048
+  key_opts     = ["wrapKey", "unwrapKey", "encrypt", "decrypt"]
+}

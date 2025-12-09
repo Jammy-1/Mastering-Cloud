@@ -19,4 +19,3 @@ variable "attach_nsg_to_vm_subnet" {
   type    = bool
   default = true
 }
-

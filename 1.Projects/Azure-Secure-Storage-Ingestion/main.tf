@@ -25,10 +25,12 @@ module "key_vault" {
   purge_protection              = var.public_network_access_enabled
   public_network_access_enabled = var.public_network_access_enabled
   rbac_authorization_enabled    = var.rbac_authorization_enabled
-  
-  vpn_shared_key = var.vpn_shared_key
+
+  vpn_shared_key                       = var.vpn_shared_key
   key_vault_secret_vpn_shared_key_name = var.key_vault_secret_vpn_shared_key_name
-  key_vault_secret_vm_disk_key = var.key_vault_secret_vm_disk_key
+  key_vault_secret_vm_disk_key         = var.key_vault_secret_vm_disk_key
+
+  storage_identity_principal_id = module.storage.identity_principal_id
 
   tags = var.tags
 }
@@ -97,4 +99,20 @@ module "vpn" {
   vpn_name       = var.vpn_name
   vpn_type       = var.vpn_type
   vpn_shared_key = module.key_vault.vpn_shared_key_secret_value
+}
+
+module "storage" {
+  source               = "./modules/storage"
+  storage_account_name = var.storage_account_name
+  resource_group_name  = var.rg_storage_name
+  location             = var.location
+
+  network_subnet_id    = module.network.private_endpoint_subnet_id
+  virtual_network_id   = module.network.vnet_id
+
+  key_vault_key_id    = module.key_vault.storage_cmk_key_id
+
+  blob_container_name = var.blob_container_name
+  archive_days        = var.archive_days
+  tags                = var.tags
 }

@@ -20,4 +20,4 @@ variable "vpn_shared_key" {
   type      = string
   sensitive = true
 }
-
+variable "storage_identity_principal_id" { type = string }

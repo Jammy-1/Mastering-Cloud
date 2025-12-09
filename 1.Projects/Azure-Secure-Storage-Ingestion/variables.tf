@@ -12,7 +12,7 @@ variable "rg_security_name" { type = string }
 # Key Vault
 variable "key_vault_name" { type = string }
 variable "key_vault_secret_vpn_shared_key_name" { type = string }
-variable "key_vault_secret_vm_disk_key"{ type = string }
+variable "key_vault_secret_vm_disk_key" { type = string }
 
 variable "key_vault_sku" { type = string }
 variable "soft_delete_retention_days" { type = number }
@@ -69,4 +69,10 @@ variable "vpn_name" { type = string }
 variable "vpn_shared_key" { type = string }
 variable "vpn_type" { type = string }
 
-
+# Storage
+variable "storage_account_name" { type = string }
+variable "blob_container_name" { type = string }
+variable "archive_days" {
+  type    = number
+  default = 30
+}
