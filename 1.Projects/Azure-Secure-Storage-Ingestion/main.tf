@@ -9,7 +9,7 @@ module "resource_groups" {
   rg_storage_name  = var.rg_storage_name
   rg_security_name = var.rg_security_name
 
-  tags = var.tags
+  tags = merge(var.global_tags, var.resource_group_tags)
 }
 
 # Key Vault
@@ -32,7 +32,7 @@ module "key_vault" {
 
   storage_identity_principal_id = module.storage.identity_principal_id
 
-  tags = var.tags
+  tags = merge(var.global_tags, var.key_vault_tags)
 }
 
 # NSG
@@ -47,7 +47,7 @@ module "nsg" {
   storage_private_endpoint_subnet_cidr = var.storage_private_endpoint_subnet_cidr
   security_rules                       = []
 
-  tags = var.tags
+  tags = merge(var.global_tags, var.nsg_tags)
 }
 
 # Network
@@ -72,7 +72,7 @@ module "network" {
   nsg_id                  = module.nsg.id
   attach_nsg_to_vm_subnet = true
 
-  tags = var.tags
+  tags = merge(var.global_tags, var.network_tags)
 }
 
 # VPN 
@@ -80,8 +80,7 @@ module "vpn" {
   source              = "./modules/vpn"
   resource_group_name = var.rg_network_name
   location            = var.location
-  tags                = var.tags
-
+  
   public_ip_name              = var.public_ip_name
   public_ip_allocation_method = var.public_ip_allocation_method
   public_ip_sku               = var.public_ip_sku
@@ -99,6 +98,8 @@ module "vpn" {
   vpn_name       = var.vpn_name
   vpn_type       = var.vpn_type
   vpn_shared_key = module.key_vault.vpn_shared_key_secret_value
+  
+  tags = merge(var.global_tags, var.vpn_tags)
 }
 
 module "storage" {
@@ -114,5 +115,6 @@ module "storage" {
 
   blob_container_name = var.blob_container_name
   archive_days        = var.archive_days
-  tags                = var.tags
+
+  tags = merge(var.global_tags, var.storage_tags)
 }

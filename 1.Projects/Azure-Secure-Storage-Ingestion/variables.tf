@@ -1,6 +1,14 @@
 # General
 variable "location" { type = string }
-variable "tags" { type = map(string) }
+variable "global_tags" { type = map(string) }
+
+# Tags
+variable "resource_group_tags"  { type = map(string) }
+variable "key_vault_tags"       { type = map(string) }
+variable "nsg_tags"             { type = map(string) }
+variable "network_tags"         { type = map(string) }
+variable "vpn_tags"             { type = map(string) }
+variable "storage_tags"         { type = map(string) }
 
 # Resource Groups
 variable "rg_core_name" { type = string }
