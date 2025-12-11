@@ -118,3 +118,28 @@ module "storage" {
 
   tags = merge(var.global_tags, var.storage_tags)
 }
+
+# Linux VM
+module "vm" {
+  source = "./modules/vm"
+
+  resource_group_name = var.rg_compute_name
+  location            = var.location
+
+  vm_name       = var.vm_name
+  vm_size       = var.vm_size
+  vm_subnet_id  = module.network.vm_subnet_id
+
+  admin_username       = var.admin_username
+  ssh_public_key_path  = var.ssh_public_key_path
+
+  nas_host     = var.nas_host
+  nas_share    = var.nas_share
+  nas_username = var.nas_username
+  nas_password = var.nas_password
+
+  storage_account_name = module.storage.storage_account_name
+  blob_container_name  = module.storage.blob_container_name
+
+  tags = merge(var.global_tags, var.vm_tags)
+}

@@ -9,6 +9,7 @@ variable "nsg_tags"             { type = map(string) }
 variable "network_tags"         { type = map(string) }
 variable "vpn_tags"             { type = map(string) }
 variable "storage_tags"         { type = map(string) }
+variable "vm_tags"              { type = map(string) }
 
 # Resource Groups
 variable "rg_core_name" { type = string }
@@ -84,3 +85,16 @@ variable "archive_days" {
   type    = number
   default = 30
 }
+
+# VM 
+variable "vm_name" { type = string }
+variable "vm_size" { type    = string }
+
+variable "admin_username" { type = string }
+variable "ssh_public_key_path" { type = string }
+
+variable "nas_host" { type = string }
+variable "nas_share" { type = string }
+variable "nas_username" { type = string }
+variable "nas_password" { type = string }
+
