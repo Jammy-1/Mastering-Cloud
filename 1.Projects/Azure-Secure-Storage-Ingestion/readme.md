@@ -1,5 +1,6 @@
                                             Azure Secure NAS-to-Blob Ingestion Pipeline — Terraform Project
-Overview
+
+Overview:
 Terraform project deploys a private, low-cost and secure Azure ingestion pipeline that transfers data from an on-premises NAS into Azure Blob Storage (Archive Tier) with no user intervention or public exposure.
 
 - End-to-end encryption
@@ -10,6 +11,7 @@ Terraform project deploys a private, low-cost and secure Azure ingestion pipelin
 - Perfect for long-term retention and backup ingestion
 
 The design uses:
+
 - Site-to-site VPN for encrypted connectivity
 - Private Linux VM to read NAS files and upload via AzCopy
 - NSG communication with only on-prem systems, Azure platform services and Storage Private Endpoints - eliminating any direct internet exposure
@@ -19,9 +21,10 @@ The design uses:
 - No public IPs on compute or storage
 - No PC required — the process runs entirely in Azure
 
-This architecture prioritises security, cost efficiency and automation -  making it ideal for long-term archival of large data volumes.
+This architecture prioritises security, cost efficiency and automation - making it ideal for long-term archival of large data volumes.
 
 Features
+
 - Creates all required Azure Resource Groups
 - Builds a secured Virtual Network with:
 - VM subnet
@@ -34,9 +37,10 @@ Features
 - Mounts the NAS share automatically via VPN
 - Uploads data to Blob Storage using AzCopy
 - Storage account secured with:
-    - Private Endpoint
-    - Customer Managed Key (CMK) in Key Vault
-    - Blocked public access
+
+  - Private Endpoint
+  - Customer Managed Key (CMK) in Key Vault
+  - Blocked public access
 
 - Lifecycle management moves data into Archive tier for lowest cost
 - VM uses Managed Identity- No keys stored
@@ -46,63 +50,64 @@ Features
 Infrastructure Overview
 
 Modules/
- ├── Key-Vault
- ├── Network
- ├── NSG
- ├── Resource-Groups
- ├── Storage
- ├── VM
- └── VPN
+├── Key-Vault
+├── Network
+├── NSG
+├── Resource-Groups
+├── Storage
+├── VM
+└── VPN
 
 Azure Resource Groups
 ├── rg-network
-│   ├── Network 
-│   │   ├── vm-subnet
-│   │   ├── gateway-subnet
-│   │   └── private-endpoint-subnet
-│   │
-│   ├── VPN 
-│   │   ├── Public IP
-│   │   ├── Virtual Network Gateway
-│   │   ├── Local Network Gateway 
-│   │   └── VPN Connection
-│   │
-│   └── Network Security Groups 
-│       ├── vm-subnet
-│       ├── private-endpoint-subnet
-│       └── Security Rules
+│ ├── Network
+│ │ ├── vm-subnet
+│ │ ├── gateway-subnet
+│ │ └── private-endpoint-subnet
+│ │
+│ ├── VPN
+│ │ ├── Public IP
+│ │ ├── Virtual Network Gateway
+│ │ ├── Local Network Gateway
+│ │ └── VPN Connection
+│ │
+│ └── Network Security Groups
+│ ├── vm-subnet
+│ ├── private-endpoint-subnet
+│ └── Security Rules
 │
 ├── rg-storage
-│   ├── Storage Account
-│   │   ├── Blob Container
-│   │   ├── Private Endpoint 
-│   │   └── Lifecycle Policy → Moves data to Archive Tier
-│   │
-│   └── Customer-Managed Key (Key Vault)
+│ ├── Storage Account
+│ │ ├── Blob Container
+│ │ ├── Private Endpoint
+│ │ └── Lifecycle Policy → Moves data to Archive Tier
+│ │
+│ └── Customer-Managed Key (Key Vault)
 │
 ├── rg-security
-│   ├── Key Vault
-│   │   ├── VPN Shared Key
-│   │   ├── Storage CMK Key
-│   │   └── VM Disk Encryption Keys
-│   │
-│   └── Access Policies
+│ ├── Key Vault
+│ │ ├── VPN Shared Key
+│ │ ├── Storage CMK Key
+│ │ └── VM Disk Encryption Keys
+│ │
+│ └── Access Policies
 │
 └── rg-compute
-    └── VM
-        ├── Size: B1s (low cost)
-        ├── No Public IP
-        ├── Managed Identity
-        │
-        ├── NAS Mount 
-        │   └── Mounts //NAS/archive
-        │
-        ├── AzCopy Automation
-        │   └── Uploads NAS files → Blob Storage
-        │
-        └── Shutdown automation
+└── VM
+├── Size: B1s (low cost)
+├── No Public IP
+├── Managed Identity
+│
+├── NAS Mount
+│ └── Mounts //NAS/archive
+│
+├── AzCopy Automation
+│ └── Uploads NAS files → Blob Storage
+│
+└── Shutdown automation
 
 Key Details
+
 - VPN Gateway creates an encrypted tunnel to on-prem router/firewall
 - Private Endpoint ensures storage traffic never touches the public internet
 - NSG security rules blocks all internet egress and inbound access allowing only VPN traffic, DNS, NTP and required storage/private-endpoint communication
@@ -110,39 +115,44 @@ Key Details
 - Lifecycle rules automatically push data to Archive tier after X days
 - Disk + storage encryption provided by Key Vault CMK.
 
-
 Project Architecture Considerations  
 Designed to provide a cost-effective, fully private and security-driven file ingestion pipeline from NAS → Azure Storage
 Prioritizes network isolation, zero public exposure and explicit allow-only network paths
 
 VPN Gateway
+
 - Cheapest secure hybrid connectivity option - Cheaper than ExpressRoute
 - IPsec encryption end-to-end
 - Works with almost any on-prem firewall/router
 
-Small B1s Linux VM?
+Small B1s Linux VM
+
 - Lowest cost compute
 - Sufficient for file mounting + AzCopy
 - No public IP → significantly reduces attack surface
 - Managed Identity → no credentials stored on VM
 
- Blob Storage + Archive Tier?
+Blob Storage + Archive Tier
+
 - Cheapest storage option in Azure
 - Perfect for long-term archive
-- Lifecycle rules automate transitions 
+- Lifecycle rules automate transitions
 
-Network?
+Network
+
 - Ensures storage access remains private
 - Prevents accidental public exposure
 - Enforce Zero Trust network design
 
-Key Vault?
+Key Vault
+
 - Central point for secure secret, key and certificates
 - Provides hardened CMK encryption for Storage + VM disks
 - Removes key material from VM/Storage reducing risk of compromise
-- Enables strict access policies 
+- Enables strict access policies
 
 Deployment Instructions
+
 1. Clone the repository
 
 git clone https://github.com/Jammy-1/Mastering-Cloud
@@ -150,8 +160,8 @@ cd 1.Projects\Azure-Secure-Storage-Ingestion
 
 2. Prepare variables
 
-- Add Information in every fields that has ENTER-INFORMATION 
-Change file name terraform.example.tfvars to terraform.tfvars
+- Add Information in every fields that has ENTER-INFORMATION
+- Change file name terraform.example.tfvars to terraform.tfvars
 
 3. Initialize Terraform
 
@@ -164,4 +174,3 @@ terraform plan
 5. Deploy the infrastructure
 
 terraform apply
-
