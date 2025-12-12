@@ -157,8 +157,13 @@ Deployment Instructions
 
 1. Clone the repository
 
+```powershell
 git clone https://github.com/Jammy-1/Mastering-Cloud
+```
+
+```powershell
 cd 1.Projects\Azure-Secure-Storage-Ingestion
+```
 
 2. Prepare variables
 
@@ -167,12 +172,18 @@ cd 1.Projects\Azure-Secure-Storage-Ingestion
 
 3. Initialize Terraform
 
+```powershell
 terraform init
+```
 
 4. Preview the deployment
 
+```powershell
 terraform plan
+```
 
 5. Deploy the infrastructure
 
+```powershell
 terraform apply
+```
