@@ -49,6 +49,7 @@ Features
 
 Infrastructure Overview
 
+```
 Modules/
 ├── Key-Vault
 ├── Network
@@ -105,6 +106,7 @@ Azure Resource Groups
 │ └── Uploads NAS files → Blob Storage
 │
 └── Shutdown automation
+```
 
 Key Details
 
