@@ -68,3 +68,15 @@ resource "azurerm_key_vault_key" "storage_cmk" {
   key_size     = 2048
   key_opts     = ["wrapKey", "unwrapKey", "encrypt", "decrypt"]
 }
+
+resource "azurerm_key_vault_secret" "nas_username" {
+  name         = "nas-username"
+  value        = var.nas_username
+  key_vault_id = azurerm_key_vault.kv.id
+}
+
+resource "azurerm_key_vault_secret" "nas_password" {
+  name         = "nas-password"
+  value        = var.nas_password
+  key_vault_id = azurerm_key_vault.kv.id
+}

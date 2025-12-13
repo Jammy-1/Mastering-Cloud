@@ -21,3 +21,13 @@ variable "vpn_shared_key" {
   sensitive = true
 }
 variable "storage_identity_principal_id" { type = string }
+
+variable "nas_username" {
+  type        = string
+  sensitive   = true
+}
+
+variable "nas_password" {
+  type        = string
+  sensitive   = true
+}
