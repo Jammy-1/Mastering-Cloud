@@ -125,5 +125,3 @@ ssh_public_key_path = "C:/.ssh/ENTER-INFORMATION.pub"
 # NAS mount
 nas_host     = "ENTER-INFORMATION"
 nas_share    = "ENTER-INFORMATION"
-nas_username = "ENTER-INFORMATION"
-nas_password = "ENTER-INFORMATION"
