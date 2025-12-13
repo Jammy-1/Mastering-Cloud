@@ -66,6 +66,7 @@ variable "gateway_subnet_cidr" { type = string }
 
 # VPN
 variable "vpn_gateway_name" { type = string }
+variable "vpn_type" { type = string }
 variable "public_ip_name" { type = string }
 variable "public_ip_allocation_method" { type = string }
 variable "public_ip_sku" { type = string }
@@ -75,8 +76,10 @@ variable "vpn_sku" { type = string }
 variable "on_prem_gateway_name" { type = string }
 variable "on_prem_address_space" { type = string }
 variable "vpn_name" { type = string }
-variable "vpn_shared_key" { type = string }
-variable "vpn_type" { type = string }
+variable "vpn_shared_key" { 
+  type = string 
+  sensitive   = true
+}
 
 # Storage
 variable "storage_account_name" { type = string }
@@ -95,6 +98,12 @@ variable "ssh_public_key_path" { type = string }
 
 variable "nas_host" { type = string }
 variable "nas_share" { type = string }
-variable "nas_username" { type = string }
-variable "nas_password" { type = string }
+variable "nas_username" {
+  type        = string
+  sensitive   = true
+}
 
+variable "nas_password" {
+  type        = string
+  sensitive   = true
+}

@@ -29,6 +29,8 @@ module "key_vault" {
   vpn_shared_key                       = var.vpn_shared_key
   key_vault_secret_vpn_shared_key_name = var.key_vault_secret_vpn_shared_key_name
   key_vault_secret_vm_disk_key         = var.key_vault_secret_vm_disk_key
+  nas_username                         = var.nas_username
+  nas_password                         = var.nas_password
 
   storage_identity_principal_id = module.storage.identity_principal_id
 
@@ -133,6 +135,7 @@ module "vm" {
   admin_username       = var.admin_username
   ssh_public_key_path  = var.ssh_public_key_path
 
+  key_vault_name = var.key_vault_name
   nas_host     = var.nas_host
   nas_share    = var.nas_share
   nas_username = var.nas_username

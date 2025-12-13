@@ -1,3 +1,16 @@
+# Cloud Init Script Data
+data "template_file" "cloud_init_data" {
+  template = file("${path.module}/cloud-init.yml")
+
+  vars = {
+    key_vault_name       = var.key_vault_name
+    nas_host             = var.nas_host
+    nas_share            = var.nas_share
+    storage_account_name = var.storage_account_name
+    blob_container_name  = var.blob_container_name
+  }
+}
+
 # NIC
 resource "azurerm_network_interface" "vm_nic" {
   name                = "${var.vm_name}-nic"
@@ -59,16 +72,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  /*
-  custom_data = 
-    storage_account_name = var.storage_account_name
-    blob_container_name  = var.blob_container_name
-    nas_host             = var.nas_host
-    nas_share            = var.nas_share
-    nas_username         = var.nas_username
-    nas_password         = var.nas_password
-  }))
-*/
+  custom_data = base64encode(data.template_file.cloud_init_data.rendered)
+  
   tags = var.tags
 }
 

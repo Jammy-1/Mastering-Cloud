@@ -1,0 +1,146 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - cifs-utils
+  - wget
+  - unzip
+  - jq
+
+write_files:
+  - path: /opt/upload/upload.sh
+    permissions: "0755"
+    owner: root:root
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+
+      LOG_FILE="/var/log/azcopy-upload.log"
+      exec >> "$LOG_FILE" 2>&1
+
+      START_TIME=$(date +%s)
+      echo "===== Upload started at $(date -u +"%Y-%m-%dT%H:%M:%SZ") ====="
+
+      MOUNT_POINT="/mnt/nas"
+      mkdir -p "$MOUNT_POINT"
+
+      # Authenticate
+      az login --identity
+
+      # Retrieve From Key Vault
+      NAS_USERNAME=$(az keyvault secret show \
+        --vault-name "${key_vault_name}" \
+        --name "nas-username" \
+        --query value -o tsv)
+      NAS_PASSWORD=$(az keyvault secret show \
+        --vault-name "${key_vault_name}" \
+        --name "nas-password" \
+        --query value -o tsv)
+
+      # Mount NAS
+      mount -t cifs "//${nas_host}/${nas_share}" "$MOUNT_POINT" \
+        -o username="$NAS_USERNAME",password="$NAS_PASSWORD",vers=3.0,_netdev
+      echo "NAS mounted successfully"
+
+      # Count Files Before Upload
+      FILES_TO_UPLOAD=$(find "$MOUNT_POINT" -type f | wc -l)
+      echo "Files to upload: $FILES_TO_UPLOAD"
+
+      # AzCopy login
+      azcopy login --identity
+
+      # Start Hourly Progress Reporter
+      (
+        while true; do
+          sleep 3600
+          FILES_DONE=$(find "$MOUNT_POINT" -type f | wc -l)
+          BYTES_DONE=$(du -sh "$MOUNT_POINT" | awk '{print $1}')
+          echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") - Hourly progress: $BYTES_DONE, $FILES_DONE files"
+        done
+      ) &
+
+      # Upload Max Timeout 12 Hours (18:00 - 06:00)
+      UPLOAD_START=$(date +%s)
+      timeout 43200 azcopy copy \
+        "$MOUNT_POINT/*" \
+        "https://${storage_account_name}.blob.core.windows.net/${blob_container_name}" \
+        --recursive=true
+      EXIT_CODE=$?
+      UPLOAD_END=$(date +%s)
+
+      # Hourly Progress Job
+      pkill -P $$ sleep || true
+
+      # Unmount NAS
+      umount "$MOUNT_POINT"
+      echo "NAS unmounted"
+
+      # Upload Summary
+      DURATION=$((UPLOAD_END - UPLOAD_START))
+      HOURS=$((DURATION / 3600))
+      MINUTES=$(((DURATION % 3600) / 60))
+      SECONDS=$((DURATION % 60))
+
+      FILES_UPLOADED=$(find "$MOUNT_POINT" -type f | wc -l)
+      TOTAL_BYTES=$(du -sb "$MOUNT_POINT" | awk '{print $1}')
+
+      echo "Upload Summary"
+      if [ "$EXIT_CODE" -eq 124 ]; then
+        echo "Upload Stopped After Reaching 12-hour Limit"
+      else
+        echo "Upload Completed Successfully"
+      fi
+      echo "Files Uploaded: $FILES_UPLOADED / $FILES_TO_UPLOAD"
+      echo "Total Data Uploaded: $TOTAL_BYTES bytes"
+      echo "Upload Duration: $${HOURS}h $${MINUTES}m $${SECONDS}s"
+      echo "Upload Finished At $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+  - path: /etc/systemd/system/azupload.service
+    permissions: "0644"
+    owner: root:root
+    content: |
+      [Unit]
+      Description=Secure NAS To Azure Blob Upload
+      Requires=network-online.target
+      After=network-online.target
+
+      [Service]
+      Type=oneshot
+      Environment="KEY_VAULT_NAME=${key_vault_name}"
+      Environment="NAS_HOST=${nas_host}"
+      Environment="NAS_SHARE=${nas_share}"
+      Environment="STORAGE_ACCOUNT_NAME=${storage_account_name}"
+      Environment="BLOB_CONTAINER_NAME=${blob_container_name}"
+      ExecStart=/opt/upload/upload.sh
+      TimeoutStartSec=12h
+
+      [Install]
+      WantedBy=multi-user.target
+
+  - path: /etc/systemd/system/azupload.timer
+    permissions: "0644"
+    owner: root:root
+    content: |
+      [Unit]
+      Description=NAS Upload From 18:00 to 06:00
+
+      [Timer]
+      OnCalendar=*-*-* 18:00:00
+      Persistent=true
+
+      [Install]
+      WantedBy=timers.target
+
+runcmd:
+  # Install AzCopy
+  - wget -O /tmp/azcopy.zip https://aka.ms/downloadazcopylinux
+  - unzip -o /tmp/azcopy.zip -d /tmp
+  - cp /tmp/azcopy_linux_*/azcopy /usr/bin/azcopy
+  - chmod +x /usr/bin/azcopy
+
+  # Enable systemd service & timer
+  - systemctl daemon-reload
+  - systemctl enable azupload.service
+  - systemctl enable azupload.timer
+  - systemctl start azupload.timer

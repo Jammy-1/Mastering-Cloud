@@ -15,6 +15,7 @@ variable "nas_host" { type = string }
 variable "nas_share" { type = string }
 variable "nas_username" { type = string }
 variable "nas_password" { type = string }
+variable "key_vault_name" { type = string }
 
 variable "storage_account_name" {type = string }
 variable "blob_container_name" { type = string }
