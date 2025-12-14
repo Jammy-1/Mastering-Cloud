@@ -6,7 +6,7 @@ Terraform project deploys a private, low-cost and secure Azure ingestion pipelin
 - End-to-end encryption
 - No public access anywhere
 - Cheapest possible Azure hybrid setup
-- VM only runs when needed
+- VM runs on a schedule with logging and monitoring
 - Lifecycle policies reduce long-term storage cost
 - Perfect for long-term retention and backup ingestion
 
@@ -34,6 +34,7 @@ Features
 - Configures a Local Network Gateway for on-premises networks
 - Establishes a fully encrypted IPsec tunnel
 - Deploys a B1s Linux VM with no public IP
+- Automated upload process with monitoring and logging
 - Mounts the NAS share automatically via VPN
 - Uploads data to Blob Storage using AzCopy
 - Storage account secured with:
@@ -108,7 +109,7 @@ Azure Resource Groups
 └── Shutdown automation
 ```
 
-Key Details
+Key Details:
 
 - VPN Gateway creates an encrypted tunnel to on-prem router/firewall
 - Private Endpoint ensures storage traffic never touches the public internet
@@ -117,9 +118,28 @@ Key Details
 - Lifecycle rules automatically push data to Archive tier after X days
 - Disk + storage encryption provided by Key Vault CMK.
 
+Automated Upload Execution & Scheduling
+
+- Upload process is fully automated using cloud-init and systemd
+- Upload job is scheduled to run daily between 18:00 and 06:00 using a systemd timer
+- A hard execution limit of 12 hours ensures predictable runtime and cost control
+- Upload process terminates cleanly if the time window is exceeded
+- Designed for overnight, low-impact data ingestion windows
+
+Logging & Monitoring
+
+- Upload process logs execution, progress and completion status to the VM
+- Logs include:
+  - Start and end timestamps
+  - File count and data volume
+  - Hourly progress updates
+  - Success or timeout status
+- Log output is written in a format suitable for Azure Monitor and Log Analytics ingestion
+
 Project Architecture Considerations  
 Designed to provide a cost-effective, fully private and security-driven file ingestion pipeline from NAS → Azure Storage
 Prioritizes network isolation, zero public exposure and explicit allow-only network paths
+Upload execution is time bound (maximum 12 hours) to control cost, limit resource usage and ensure predictable operational behaviour
 
 VPN Gateway
 
