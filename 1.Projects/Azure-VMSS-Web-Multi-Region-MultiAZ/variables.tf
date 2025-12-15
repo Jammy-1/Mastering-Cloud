@@ -16,7 +16,6 @@ variable "instance_count" { type = number }
 variable "vm_size" { type = string }
 
 variable "github_repo" { type = string }
-variable "github_repo_raw" { type = string }
 variable "github_branch" { type = string }
 variable "github_private" { type = bool }
 
