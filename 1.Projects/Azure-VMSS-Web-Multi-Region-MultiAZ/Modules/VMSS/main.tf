@@ -58,7 +58,7 @@ resource "azurerm_virtual_machine_scale_set_extension" "update" {
 
   settings = jsonencode({
     fileUris = [
-      "https://raw.githubusercontent.com/${var.github_repo_raw}/${var.github_branch}/Modules/Scripts/update_site.sh"
+      "https://raw.githubusercontent.com/${var.github_repo_raw}/${var.github_branch}/1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/Modules/Scripts/update_site.sh"
     ]
     commandToExecute = "bash update_site.sh"
   })
