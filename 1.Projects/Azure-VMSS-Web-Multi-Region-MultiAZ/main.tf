@@ -89,6 +89,7 @@ module "vmss" {
   vm_size           = var.vm_size
 
   github_repo       = var.github_repo
+  github_repo_raw   = var.github_repo_raw 
   github_branch     = var.github_branch
   github_private    = false
   github_deploy_key = ""
