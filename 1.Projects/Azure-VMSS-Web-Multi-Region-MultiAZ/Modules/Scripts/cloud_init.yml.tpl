@@ -17,19 +17,29 @@ runcmd:
   - [bash, -c, "mkdir -p /opt/myrepo"]
 
   # Clone the full GitHub repo into the new folder
-  - [bash, -c, "git clone --branch ${GITHUB_BRANCH} --depth 1 ${GITHUB_REPO} /opt/myrepo"]
+  - [
+      bash,
+      -c,
+      "git clone --branch ${GITHUB_BRANCH} --depth 1 ${GITHUB_REPO} /opt/myrepo",
+    ]
 
   # Copy index.html and style.css to the web root
-  - [bash, -c, "cp '/opt/myrepo/1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/Static Site/index.html' /var/www/html/"]
-  - [bash, -c, "cp '/opt/myrepo/1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/Static Site/styles.css' /var/www/html/"]
+  - [
+      bash,
+      -c,
+      "cp '/opt/myrepo/1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/Static Site/index.html' /var/www/html/",
+    ]
+  - [
+      bash,
+      -c,
+      "cp '/opt/myrepo/1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/Static Site/styles.css' /var/www/html/",
+    ]
 
   # Set correct permissions for Apache
-  - [bash, -c, "chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html"]
-
-  # Remove the cloned repo folder to keep the system clean
-  - [bash, -c, "rm -rf /opt/myrepo"]
+  - [
+      bash,
+      -c,
+      "chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html",
+    ]
 
 final_message: "Web Server Running"
-
-
-1.Projects\Azure-VMSS-Web-Multi-Region-MultiAZ\Static Site\index.html

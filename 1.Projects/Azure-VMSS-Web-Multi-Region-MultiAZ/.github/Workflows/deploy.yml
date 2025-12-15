@@ -12,18 +12,40 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: SSH into VM and update site
-        uses: appleboy/ssh-action@v1.2.0
+      # AZ Authentication
+      - name: Azure Login
+        uses: azure/login@v1
         with:
-          host: ${{ secrets.AZURE_VM_IP }}
-          username: azureuser
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          script: |
-            echo "Pulling latest website updates..."
-            cd /var/www/html/site
-            git fetch origin main
-            git reset --hard origin/main
-            sudo cp -r /var/www/html/site/* /var/www/html/
-            sudo systemctl restart apache2
-            echo "Website updated successfully!"
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # Install Terraform CLI
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.6.0
+
+      # Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # Get Terraform outputs
+      - name: Read Terraform outputs
+        id: tf_outputs
+        run: |
+          terraform output -json > tf_outputs.json
+          # Extract RG
+          echo "RG_NAME=$(jq -r '.resource_group_name.value' tf_outputs.json)" >> $GITHUB_ENV
+          # Extract VMSS per region as comma-separated REGION:VMSS_NAME
+          echo "VMSS_LIST=$(jq -r '.vmss_per_region.value | to_entries | map(.key+\":\"+.value.name) | join(\",\")' tf_outputs.json)" >> $GITHUB_ENV
+
+      # Trigger rolling upgrade for each VMSS
+      - name: Trigger VMSS Rolling Upgrades
+        run: |
+          IFS=',' read -ra PAIRS <<< "$VMSS_LIST"
+          for pair in "${PAIRS[@]}"; do
+            REGION="${pair%%:*}"
+            VMSS_NAME="${pair##*:}"
+            echo "Starting rolling upgrade for region $REGION / VMSS $VMSS_NAME"
+            az vmss rolling-upgrade start \
+              --resource-group "$RG_NAME" \
+              --name "$VMSS_NAME"
+          done

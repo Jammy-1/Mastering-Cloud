@@ -48,3 +48,18 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
   upgrade_mode = "Automatic"
 }
 
+# Update Site 
+resource "azurerm_virtual_machine_scale_set_extension" "update" {
+  name                         = "update-site"
+  virtual_machine_scale_set_id = azurerm_linux_virtual_machine_scale_set.this.id
+  publisher                    = "Microsoft.Azure.Extensions"
+  type                         = "CustomScript"
+  type_handler_version         = "2.1"
+
+  settings = jsonencode({
+    fileUris = [
+      "https://raw.githubusercontent.com/${var.github_repo}/${var.github_branch}/Modules/Scripts/update_site.sh"
+    ]
+    commandToExecute = "bash update_site.sh"
+  })
+}
