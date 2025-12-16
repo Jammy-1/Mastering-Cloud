@@ -7,6 +7,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
   sku                 = var.vm_size
   instances           = var.instance_count
   admin_username      = var.vm_admin_username
+  tags                = var.tags
 
   source_image_reference {
     publisher = "Canonical"

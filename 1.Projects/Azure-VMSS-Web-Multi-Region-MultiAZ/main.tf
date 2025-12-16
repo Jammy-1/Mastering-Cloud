@@ -74,6 +74,7 @@ locals {
 module "vmss" {
   source              = "./modules/vmss"
   resource_group_name = module.rg.name
+  tags                = var.vmss_tags
   for_each            = { for r in local.deploy_regions : r.name => r }
 
   zones    = lookup(local.region_zones, each.key, [])
