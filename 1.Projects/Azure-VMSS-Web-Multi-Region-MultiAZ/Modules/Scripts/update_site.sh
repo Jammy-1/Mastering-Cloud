@@ -1,47 +1,48 @@
 #!/bin/bash
 set -e
 
-# Log Setup
-LOG_FILE="/var/log/update_site.log"
-exec > "$LOG_FILE" 2>&1
-
-log() {
-  echo "$(date --iso-8601=seconds) | update_site | $1"
-}
-
-log "Starting web content update"
-
 # Config
-REPO_DIR="/opt/myrepo"
+REPO_URL="https://github.com/Jammy-1/Mastering-Cloud.git"
+BRANCH="main"
+SITE_PATH="/opt/myrepo"
 WEB_ROOT="/var/www/html"
 PROJECT_PATH="1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/Static Site"
 
-# Repo Sync
-if [ ! -d "$REPO_DIR" ]; then
-  log "Repository not found, cloning from GitHub"
-  git clone "${GITHUB_REPO}" "$REPO_DIR"
+# Logging
+LOG_DIR="/var/log/site_update"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/update_$(hostname)_$(date +'%Y%m%d_%H%M%S').log"
+
+exec > "$LOG_FILE" 2>&1
+
+# Deployment Start
+echo "=== Update started on $(hostname) at $(date) ==="
+
+# Update Packages
+apt-get update -y
+apt-get install -y apache2 git
+
+# Update Repo
+if [ -d "$SITE_PATH/.git" ]; then
+    cd "$SITE_PATH"
+    git fetch origin
+    git reset --hard origin/$BRANCH
 else
-  log "Repository exists, pulling latest changes"
+    rm -rf "$SITE_PATH"
+    git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$SITE_PATH"
 fi
 
-cd "$REPO_DIR"
+# Deploy Site Files
+rm -rf "$WEB_ROOT"/*
+cp "$SITE_PATH/$PROJECT_PATH/index.html" "$WEB_ROOT/"
+cp "$SITE_PATH/$PROJECT_PATH/styles.css" "$WEB_ROOT/"
 
-git fetch origin "${GITHUB_BRANCH}"
-git reset --hard "origin/${GITHUB_BRANCH}"
-
-log "Repository synced to latest commit"
-
-# Deploy Site
-cp "$REPO_DIR/$PROJECT_PATH/index.html" "$WEB_ROOT/"
-cp "$REPO_DIR/$PROJECT_PATH/styles.css" "$WEB_ROOT/"
-
-log "Static files copied to web root"
-
+# Set Permissons
 chown -R www-data:www-data "$WEB_ROOT"
 chmod -R 755 "$WEB_ROOT"
 
-# Service Restart 
+# Restart Apache
 systemctl restart apache2
-log "Apache restarted successfully"
 
-log "Web content update completed successfully"
+echo "=== Update complete on $(hostname) at $(date) ==="
+echo "Log saved to $LOG_FILE"
