@@ -3,83 +3,203 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Azure Azure-VMSS-Web-Multi-Region-MultiAZ</title>
+    <title>Azure-VMSS-Web-Multi-Region-MultiAZ</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
 
   <body>
     <header>
-      <h1>Azure Azure-VMSS-Web-Multi-Region-MultiAZ</h1>
+      <h1>Azure-VMSS-Web-Multi-Region-MultiAZ</h1>
     </header>
 
     <main>
       <section>
         <h2>Overview</h2>
-        <p>
-          Terraform provisions a highly available static website
-          on Microsoft Azure. It automatically deploys a scalable, fault-tolerant web
-          infrastructure that serves content directly from a public GitHub repository.
-        </p>
-        <p> Fully modular Terraform design separating networking, compute and load
-            balancing components.
-          </p>
-        <p>
-          Website updates are deployed automatically through GitHub Actions
-          on each push to the main branch.
-          <p>
-          The configuration also ensures each Linux VM is kept up to date with the latest
-          system and package updates during provisioning.
-        </p>
+        <ul>
+          <li>
+            Terraform project provisions a highly available static website on
+            Microsoft Azure.
+          </li>
+          <li>
+            It automatically deploys a scalable, fault-tolerant web
+            infrastructure that serves content directly from a public GitHub
+            repository.
+          </li>
+          <li>
+            Fully modular Terraform design separating networking, compute and
+            load balancing components.
+          </li>
+          <li>
+            Designed to be reusable and cost effective - supports rapid
+            deployment across regions, zones and subscriptions.
+          </li>
+          <li>
+            Multi-region deployment configuration using Azure paired regions for
+            increased resilience and disaster recovery.
+          </li>
+          <li>
+            Virtual Machine Scale Sets are distributed across availability zones
+            where supported, providing zone-level fault tolerance.
+          </li>
+          <li>
+            Website updates are deployed automatically through GitHub Actions on
+            each push to the main branch. Allowing site updates without
+            redeploying infrastructure.
+          </li>
+          <li>
+            Configuration also ensures each Linux VM is kept up to date with the
+            latest system and package updates during provisioning.
+          </li>
+        </ul>
       </section>
 
       <section>
         <h2>Features</h2>
         <ul>
-          <li>Creates a dedicated Azure Resource Group</li>
           <li>
-            Deploys a Load Balancer with frontend IP and backend pool for high availability
-          </li>
-          <li>Creates a Virtual Machine Scale Set (VMSS) with multiple web instances</li>
-          <li>Installs Apache and Git automatically on each VM</li>
-          <li>Clones website content directly from a <strong>public GitHub repository</strong></li>
-          <li>Automatically applies system and package updates during VM provisioning</li>
-          <li>
-            GitHub Actions triggers new deployments automatically when the repository is updated
+            Creates a dedicated Azure Resource Group to logically isolate all
+            deployed resources.
           </li>
           <li>
-            Outputs key deployment details such as VMSS ID, Load Balancer backend pool ID,
-            and public IP address
+            Deploys Azure Virtual Networks and subnets per region to support
+            secure and scalable networking.
+          </li>
+          <li>
+            Implements an Azure Load Balancer with a public frontend IP and
+            backend pool for high availability and traffic distribution.
+          </li>
+          <li>
+            Provisions Azure Virtual Machine Scale Sets (VMSS) across one or
+            more regions for horizontal scalability.
+          </li>
+          <li>
+            Distributes VM instances across Availability Zones where supported
+            to increase fault tolerance.
+          </li>
+          <li>
+            Automatically installs and configures Apache and Git on each Linux
+            VM during initial provisioning.
+          </li>
+          <li>
+            Clones static website content from a public GitHub repository during
+            VM bootstrap using cloud-init.
+          </li>
+          <li>
+            Keeps all VM instances up to date by applying system and package
+            updates at provisioning time.
+          </li>
+          <li>
+            Separates infrastructure deployment from application updates to
+            avoid unnecessary VM or scale set redeployments.
+          </li>
+          <li>
+            Uses GitHub Actions to automatically deploy updated website content
+            to all running VMSS instances on each push to the main branch.
+          </li>
+          <li>
+            Executes updates using Azure-native VMSS Run Command, eliminating
+            the need for SSH access or public VM IPs.
+          </li>
+          <li>
+            Supports dynamic discovery of VM Scale Sets within a resource group,
+            enabling updates across multiple regions without manual
+            configuration.
+          </li>
+          <li>
+            Designed to scale to large numbers of VM Scale Sets without
+            requiring additional GitHub secrets or Terraform state access.
+          </li>
+          <li>
+            Outputs key deployment details including resource group name, VMSS
+            IDs, load balancer backend pool IDs and public IP addresses.
           </li>
         </ul>
       </section>
 
-      <Infrastructure Section -->
       <section>
-        <h2>Infrastructure Overview</h2>
-        <p>The deployed Azure infrastructure is structured as follows:</p>
-        <pre>
-Resource Group: rg-static-website
-└── Load Balancer: web-lb
-    ├── Frontend IP: pip-static-lb
-    └── Backend Pool: backend-pool
-└── VM Scale Set: web-vmss (2 instances)
-    ├── Apache installed and running
-    ├── System and package updates applied
-    └── Website cloned from GitHub repository
-        </pre>
-
-        <p>Details:</p>
+        <h2>Continuous Deployment – Static Site Updates</h2>
         <ul>
-          <li>The Load Balancer distributes web traffic evenly across all VM instances.</li>
-          <li>Each VM runs Apache and serves content from the GitHub repository.</li>
           <li>
-            When a change is pushed to the GitHub repository, a GitHub Action automatically
-            deploys the latest version of the site to all running VMs.
+            Website content is deployed initially during VM provisioning using
+            cloud-init.
           </li>
           <li>
-            The VM Scale Set ensures scalability and high availability across multiple zones.
+            Subsequent website updates are handled independently of
+            infrastructure using GitHub Actions.
+          </li>
+          <li>
+            When changes are pushed to the main branch—specifically within the
+            Static Site directory—the website is automatically updated across
+            all VM Scale Set instances.
+          </li>
+          <li>
+            No VM redeployment, scaling event, or Terraform apply is required to
+            update website content.
+          </li>
+          <li>
+            Updates are executed using Azure VMSS Run Command, which securely
+            runs update scripts on all instances without requiring public IP
+            access or SSH.
           </li>
         </ul>
+      </section>
+
+      <section>
+        <h2>Infrastructure Overview</h2>
+        <pre>
+Azure-VMSS-Web-Multi-Region-MultiAZ
+└── Resource Group
+    ├── Network Security Groups
+    │   └── Inbound Rules
+    │       ├── Allow HTTP
+    │       └── Allow SSH
+    │
+    ├── Virtual Networks
+    │   ├── VNet (Primary Region)
+    │   │   └── Subnet
+    │   │       └── NSG Association
+    │   └── VNet (Paired Region)
+    │       └── Subnet
+    │           └── NSG Association
+    │
+    ├── Load Balancers
+    │   ├── Public IP
+    │   │   └── Azure Load Balancer (Primary Region)
+    │   │       └── Backend Pool → VMSS (Primary)
+    │   └── Public IP
+    │       └── Azure Load Balancer (Paired Region)
+    │           └── Backend Pool → VMSS (Paired)
+    │
+    ├── Virtual Machine Scale Sets
+    │   ├── VMSS – Primary Region
+    │   │   ├── Availability Zone 1 VM(s)
+    │   │   ├── Availability Zone 2 VM(s)
+    │   │   └── Availability Zone 3 VM(s)
+    │   │
+    │   └── VMSS – Paired Region
+    │       ├── Availability Zone 1 VM(s)
+    │       ├── Availability Zone 2 VM(s)
+    │       └── Availability Zone 3 VM(s)
+    │
+    ├── Automation & CI/CD
+    │   ├── GitHub Actions
+    │   │   ├── Trigger: Push to main branch
+    │   │   ├── Azure authentication (OIDC / Service Principal)
+    │   │   ├── Dynamic VMSS discovery (per Resource Group)
+    │   │   └── az vmss run-command invoke
+    │   │       └── Pulls latest static site content from GitHub
+    │   │
+    │   └── Update Script (update_site.sh)
+    │       ├── Git fetch & reset to latest commit
+    │       ├── Copies static site files
+    │       ├── Applies permissions
+    │       └── Restarts Apache
+    │
+    └── Static Website Content
+        ├── Stored in GitHub Repository
+        ├── Served directly by Apache
+        └── Automatically updated on every push
+        </pre>
       </section>
 
       <section>
@@ -88,17 +208,12 @@ Resource Group: rg-static-website
           <li>
             <strong>Clone this repository:</strong>
             <pre>
-git clone &lt;your-repo-url&gt;
-cd &lt;repo-directory&gt;
+git clone https://github.com/Jammy-1/Mastering-Cloud
+cd Mastering-Cloud/1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/
             </pre>
           </li>
-
           <li>
             <strong>Configure Terraform variables:</strong>
-            <p>
-              Rename <code>terraform.tfvars.example</code> to
-              <code>terraform.tfvars</code> and update with your desired values:
-            </p>
             <pre>
 resource_group_name = "rg-static-website"
 location            = "UK South"
@@ -113,26 +228,25 @@ vm_size             = "Standard_B2s"
               Only public repositories are supported for this configuration.
             </p>
           </li>
-
           <li>
             <strong>Initialize Terraform:</strong>
             <pre>terraform init</pre>
           </li>
-
           <li>
             <strong>Preview the deployment plan:</strong>
             <pre>terraform plan</pre>
           </li>
-
           <li>
             <strong>Deploy the infrastructure:</strong>
             <pre>terraform apply</pre>
           </li>
-
           <li>
             <strong>Access your website:</strong>
             <pre>terraform output public_ip</pre>
-            <p>Open <code>http://&lt;public_ip&gt;</code> in your browser to view the site.</p>
+            <p>
+              Open <code>http://&lt;public_ip&gt;</code> in your browser to view
+              the site.
+            </p>
           </li>
         </ol>
       </section>
@@ -140,10 +254,21 @@ vm_size             = "Standard_B2s"
       <section>
         <h2>Outputs</h2>
         <ul>
-          <li><strong>resource_group_name</strong> – Name of the deployed Resource Group</li>
-          <li><strong>vmss_id</strong> – The ID of the Virtual Machine Scale Set</li>
-          <li><strong>backend_address_pool_id</strong> – The Load Balancer backend pool ID</li>
-          <li><strong>public_ip</strong> – The public IP address of the Load Balancer</li>
+          <li>
+            <strong>resource_group_name</strong> – Name of the deployed Resource
+            Group
+          </li>
+          <li>
+            <strong>vmss_id</strong> – The ID of the Virtual Machine Scale Set
+          </li>
+          <li>
+            <strong>backend_address_pool_id</strong> – The Load Balancer backend
+            pool ID
+          </li>
+          <li>
+            <strong>public_ip</strong> – The public IP address of the Load
+            Balancer
+          </li>
         </ul>
       </section>
     </main>
