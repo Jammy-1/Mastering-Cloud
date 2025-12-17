@@ -139,6 +139,7 @@ cd Mastering-Cloud/1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/
 
 - Rename terraform.tfvars.example to terraform.tfvars and update with your desired values:
 
+```
 resource_group_name = "rg-static-website"
 location = "UK South"
 github_repo = "https://github.com/your-org/your-repo"
@@ -147,6 +148,7 @@ vm_admin_username = "azureuser"
 ssh_public_key_path = "~/.ssh/id_rsa.pub"
 instance_count = 2
 vm_size = "Standard_B2s"
+```
 
 - Only public repositories are supported for this configuration.
 
