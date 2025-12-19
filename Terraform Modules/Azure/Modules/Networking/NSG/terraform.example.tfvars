@@ -3,7 +3,7 @@ name                = "Mastering-Cloud-NSG"
 resource_group_name = "Mastering-Cloud-RG"
 location            = "UKSOUTH"
 
-# Security rules for the NSG
+# Security Rules
 security_rules = {
   allow_ssh_inbound = {
     name                       = "allow-ssh-inbound"

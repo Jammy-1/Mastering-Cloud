@@ -11,7 +11,7 @@ resource "azurerm_network_security_group" "NetSecurityGroup_Template" {
   location            = var.location
 }
 
-# NSG Rules
+# Rules
 resource "azurerm_network_security_rule" "SecurityGroup_Template" {
   for_each = var.security_rules
 
@@ -19,10 +19,10 @@ resource "azurerm_network_security_rule" "SecurityGroup_Template" {
   resource_group_name         = var.resource_group_name
   network_security_group_name = azurerm_network_security_group.NetSecurityGroup_Template.name
 
-  priority                   = each.value.priority
-  direction                  = each.value.direction
-  access                     = each.value.access
-  protocol                   = each.value.protocol
+  priority  = each.value.priority
+  direction = each.value.direction
+  access    = each.value.access
+  protocol  = each.value.protocol
 
   source_port_range          = lookup(each.value, "source_port_range", "*")
   destination_port_range     = lookup(each.value, "destination_port_range", "*")
