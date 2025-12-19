@@ -33,7 +33,7 @@ resource "azurerm_subnet_network_security_group_association" "regular_subnet_ass
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-# Firewall Subnet (no NSG allowed)
+# Firewall Subnet
 resource "azurerm_subnet" "firewall_subnet" {
   name                 = "AzureFirewallSubnet"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -41,7 +41,7 @@ resource "azurerm_subnet" "firewall_subnet" {
   address_prefixes     = [var.firewall_subnet_prefix]
 }
 
-# Public IP for Firewall
+# Public IP Firewall
 resource "azurerm_public_ip" "fw_ip" {
   name                = var.firewall_public_ip_name
   resource_group_name = azurerm_resource_group.rg.name
@@ -71,14 +71,14 @@ resource "azurerm_firewall" "firewall" {
   ]
 }
 
-# Route Table for Regular Subnet
+# Route Table For Regular Subnet
 resource "azurerm_route_table" "regular_rt" {
   name                = "regular-subnet-rt"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-# Default route: send all traffic through the Firewall
+# Default route - All traffic through the Firewall
 resource "azurerm_route" "default_fw_route" {
   name                   = "default-to-firewall"
   resource_group_name    = azurerm_resource_group.rg.name
@@ -96,7 +96,7 @@ resource "azurerm_subnet_route_table_association" "regular_subnet_rt_assoc" {
   route_table_id = azurerm_route_table.regular_rt.id
 }
 
-# Firewall Rule Collections
+# Firewall Rule 
 resource "azurerm_firewall_network_rule_collection" "network_rules" {
   for_each            = { for r in var.firewall_network_rules : r.name => r }
   name                = each.value.name
