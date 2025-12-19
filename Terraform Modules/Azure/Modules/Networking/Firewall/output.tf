@@ -38,13 +38,13 @@ output "firewall" {
 output "firewall_network_rules" {
   value = [
     for r in azurerm_firewall_network_rule_collection.network_rules : {
-      name        = r.name
-      priority    = r.priority
-      action      = r.action
-      sources     = r.rule[0].source_addresses
-      destinations= r.rule[0].destination_addresses
-      ports       = r.rule[0].destination_ports
-      protocols   = r.rule[0].protocols
+      name         = r.name
+      priority     = r.priority
+      action       = r.action
+      sources      = r.rule[0].source_addresses
+      destinations = r.rule[0].destination_addresses
+      ports        = r.rule[0].destination_ports
+      protocols    = r.rule[0].protocols
     }
   ]
 }
