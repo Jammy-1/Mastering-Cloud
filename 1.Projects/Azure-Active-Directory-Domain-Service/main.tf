@@ -15,6 +15,8 @@ module "network" {
   address_spaces      = var.address_spaces
   dns_servers         = var.dns_servers
   subnets             = var.subnets
+
+  depends_on = [ module.RG ]
 }
 
 
@@ -25,6 +27,8 @@ module "nsg" {
   resource_group      = var.resource_group
   location            = var.location
   security_rules      = var.security_rules
+
+  depends_on = [ module.RG ]
 }
 
 # Attach NSG
