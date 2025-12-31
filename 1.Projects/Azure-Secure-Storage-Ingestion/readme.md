@@ -1,6 +1,7 @@
-                                            Azure Secure NAS-to-Blob Ingestion Pipeline — Terraform Project
+### Azure-NAS-Secure-Ingestion — Terraform Project
 
-Overview:
+## Overview:
+
 Terraform project deploys a private, low-cost and secure Azure ingestion pipeline that transfers data from an on-premises NAS into Azure Blob Storage (Archive Tier) with no user intervention or public exposure.
 
 - End-to-end encryption
@@ -10,7 +11,7 @@ Terraform project deploys a private, low-cost and secure Azure ingestion pipelin
 - Lifecycle policies reduce long-term storage cost
 - Perfect for long-term retention and backup ingestion
 
-The design uses:
+## Design:
 
 - Site-to-site VPN for encrypted connectivity
 - Private Linux VM to read NAS files and upload via AzCopy
@@ -23,7 +24,7 @@ The design uses:
 
 This architecture prioritises security, cost efficiency and automation - making it ideal for long-term archival of large data volumes.
 
-Features
+## Features
 
 - Creates all required Azure Resource Groups
 - Builds a secured Virtual Network with:
@@ -48,7 +49,7 @@ Features
 - Modular Terraform design for clean structure and reusability
 - Outputs provide key identifiers and private endpoints
 
-Infrastructure Overview
+## Infrastructure Overview
 
 ```
 Modules/
@@ -109,7 +110,7 @@ Azure Resource Groups
 └── Shutdown automation
 ```
 
-Key Details:
+## Key Details:
 
 - VPN Gateway creates an encrypted tunnel to on-prem router/firewall
 - Private Endpoint ensures storage traffic never touches the public internet
@@ -118,7 +119,7 @@ Key Details:
 - Lifecycle rules automatically push data to Archive tier after X days
 - Disk + storage encryption provided by Key Vault CMK.
 
-Automated Upload Execution & Scheduling
+## Automated Upload Execution & Scheduling
 
 - Upload process is fully automated using cloud-init and systemd
 - Upload job is scheduled to run daily between 18:00 and 06:00 using a systemd timer
@@ -126,7 +127,7 @@ Automated Upload Execution & Scheduling
 - Upload process terminates cleanly if the time window is exceeded
 - Designed for overnight, low-impact data ingestion windows
 
-Logging & Monitoring
+## Logging & Monitoring
 
 - Upload process logs execution, progress and completion status to the VM
 - Logs include:
@@ -136,73 +137,82 @@ Logging & Monitoring
   - Success or timeout status
 - Log output is written in a format suitable for Azure Monitor and Log Analytics ingestion
 
-Project Architecture Considerations  
+## Project Architecture Considerations
+
 Designed to provide a cost-effective, fully private and security-driven file ingestion pipeline from NAS → Azure Storage
 Prioritizes network isolation, zero public exposure and explicit allow-only network paths
 Upload execution is time bound (maximum 12 hours) to control cost, limit resource usage and ensure predictable operational behaviour
 
-VPN Gateway
+## VPN Gateway
 
 - Cheapest secure hybrid connectivity option - Cheaper than ExpressRoute
 - IPsec encryption end-to-end
 - Works with almost any on-prem firewall/router
 
-Small B1s Linux VM
+## Small B1s Linux VM
 
 - Lowest cost compute
 - Sufficient for file mounting + AzCopy
 - No public IP → significantly reduces attack surface
 - Managed Identity → no credentials stored on VM
 
-Blob Storage + Archive Tier
+## Blob Storage + Archive Tier
 
 - Cheapest storage option in Azure
 - Perfect for long-term archive
 - Lifecycle rules automate transitions
 
-Network
+## Network
 
 - Ensures storage access remains private
 - Prevents accidental public exposure
 - Enforce Zero Trust network design
 
-Key Vault
+## Key Vault
 
 - Central point for secure secret, key and certificates
 - Provides hardened CMK encryption for Storage + VM disks
 - Removes key material from VM/Storage reducing risk of compromise
 - Enables strict access policies
 
-Deployment Instructions
+## Deployment Instructions
 
-1. Clone the repository
+## 1. Clone the repository
 
 ```powershell
-git clone https://github.com/Jammy-1/Mastering-Cloud
+git clone https://github.com/Jammy-1/Azure-NAS-Secure-Ingestion
 ```
 
 ```powershell
-cd 1.Projects\Azure-Secure-Storage-Ingestion
+cd Azure-NAS-Secure-Ingestion
 ```
 
-2. Prepare variables
+## 2. Prepare variables
 
-- Add Information in every fields that has ENTER-INFORMATION
+- Add information in every fields that has ENTER-INFORMATION
 - Change file name terraform.example.tfvars to terraform.tfvars
 
-3. Initialize Terraform
+## 3. Initialize Terraform
 
 ```powershell
 terraform init
 ```
 
-4. Preview the deployment
+## 4. Preview the deployment
 
 ```powershell
 terraform plan
 ```
 
-5. Deploy the infrastructure
+## 5. Input Variables
+
+```powershell
+NAS Username
+NAS Password
+VPN Shared Key
+```
+
+## 6. Deploy the infrastructure
 
 ```powershell
 terraform apply
