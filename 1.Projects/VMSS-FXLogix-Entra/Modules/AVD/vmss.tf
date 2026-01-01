@@ -49,10 +49,10 @@ resource "azurerm_virtual_machine_scale_set_extension" "aad_login" {
 
   settings = "{}"
 
-  protected_settings = {
+  protected_settings = jsonencode({
     tenantId = var.aad_tenant_id
     mdm      = var.mdm_enrollment_id
-}
+  })
 
   depends_on = [
   azurerm_windows_virtual_machine_scale_set.avd_vmss

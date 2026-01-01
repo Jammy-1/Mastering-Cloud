@@ -23,12 +23,12 @@ module "nsg" {
   name                = var.nsg_name
   resource_group_name = module.rg.name
   location            = module.rg.location
-  security_rules = var.security_rules
+  security_rules      = var.security_rules
 }
 
 # Attach NSG to AVD Subnet
 resource "azurerm_subnet_network_security_group_association" "avd" {
-  subnet_id                 = module.network.subnet_ids["AVD-Subnet"]  
+  subnet_id                 = module.network.subnet_ids["AVD-Subnet"]
   network_security_group_id = module.nsg.id
 }
 
@@ -37,26 +37,26 @@ resource "azurerm_subnet_network_security_group_association" "avd" {
 module "avd" {
   source = "./modules/avd"
 
-  resource_group_name   = module.rg.name
-  location              = module.rg.location
+  resource_group_name = module.rg.name
+  location            = module.rg.location
 
   # Host Pool
-  host_pool_name        = var.host_pool_name
-  host_pool_type        = var.host_pool_type
+  host_pool_name = var.host_pool_name
+  host_pool_type = var.host_pool_type
 
   application_group_name = var.application_group_name
   workspace_name         = var.workspace_name
 
   # Network
-  load_balancer_type    = var.load_balancer_type
-  avd_subnet_id          = module.network.subnet_ids["AVD-Subnet"]
-  
-  # VMSS
-  vmss_name_prefix       = var.vmss_name_prefix
-  vmss_sku               = var.vmss_sku
+  load_balancer_type = var.load_balancer_type
+  avd_subnet_id      = module.network.subnet_ids["AVD-Subnet"]
 
-  admin_username         = var.admin_username
-  admin_password         = var.admin_password
+  # VMSS
+  vmss_name_prefix = var.vmss_name_prefix
+  vmss_sku         = var.vmss_sku
+
+  admin_username = var.admin_username
+  admin_password = var.admin_password
 
   initial_instance_count = var.initial_instance_count
   min_instance_count     = var.min_instance_count
@@ -68,8 +68,8 @@ module "avd" {
   vmss_image_sku         = var.vmss_image_sku
   vmss_image_version     = var.vmss_image_version
 
-  aad_tenant_id          = var.aad_tenant_id
-  mdm_enrollment_id      = var.mdm_enrollment_id
+  aad_tenant_id     = var.aad_tenant_id
+  mdm_enrollment_id = var.mdm_enrollment_id
 
 
   fslogix_storage_account = var.fslogix_storage_account

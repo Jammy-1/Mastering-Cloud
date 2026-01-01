@@ -25,8 +25,8 @@ variable "vmss_image_version"     { type = string }
 variable "admin_username"       { type = string }
 variable "admin_password"       { type = string }
 variable "avd_subnet_id"        { type = string }
-variable "aad_tenant_id"        { type = number }
-variable "mdm_enrollment_id"    { type = number }
+variable "aad_tenant_id"        { type = string }
+variable "mdm_enrollment_id"    { type = string }
 
 #FXLogix
 variable "fslogix_storage_account" { type = string }
