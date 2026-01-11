@@ -1,0 +1,293 @@
+name: Terraform Static Analysis
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches:
+      - dev
+      - staging
+      - main
+
+jobs:
+  terraform-format-validate:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      TF_LOG: "ERROR"
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      # Set Env Based On Branch Pull
+      - name: Determine Environment
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+                BRANCH="${{ github.base_ref }}"
+              else
+                BRANCH="${{ github.ref_name }}"
+              fi
+
+              case "$BRANCH" in
+                dev)
+                  ENV=dev
+                  ;;
+                staging)
+                  ENV=staging
+                  ;;
+                main)
+                  ENV=production
+                  ;;
+                *)
+                  echo "Invalid Target Branch: $BRANCH"
+                  exit 1
+                  ;;
+              esac
+
+              echo "ENV=$ENV" >> $GITHUB_ENV
+              echo "TFVARS_FILE=environments/$ENV/$ENV.tfvars" >> $GITHUB_ENV
+              echo "Using TFVARS file: environments/$ENV/$ENV.tfvars"
+
+        # Clear Cahce
+      - name: Clear Cache
+        run: |
+          echo "Cleaning Cache..."
+
+          rm -rf .terraform
+          rm -f .terraform.lock.hcl
+
+          rm -rf environments/${ENV}/.terraform
+          rm -f environments/${ENV}/.terraform.lock.hcl
+
+          echo "Cleanup Complete"
+
+      - name: List Module Folders
+        run: ls -l Modules/
+
+      # Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+        # TF Version
+      - name: Terraform Version
+        working-directory: .
+        run: terraform version
+
+        # Format
+      - name: Terraform FMT
+        working-directory: .
+        run: terraform fmt -check -recursive
+
+        # Initialize Terraform Without Backend
+      - name: Initialize Terraform
+        working-directory: .
+        run: terraform init -backend=false -var-file=${ENV}.tfvars
+
+        # Validation
+      - name: Terraform Validate
+        working-directory: .
+        run: terraform validate
+
+  tflint:
+    name: TFLint
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    needs: terraform-format-validate
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+        # Set Env Based On Branch Pul
+      - name: Determine Environment
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+                BRANCH="${{ github.base_ref }}"
+              else
+                BRANCH="${{ github.ref_name }}"
+              fi
+
+              case "$BRANCH" in
+                dev)
+                  ENV=dev
+                  ;;
+                staging)
+                  ENV=staging
+                  ;;
+                main)
+                  ENV=production
+                  ;;
+                *)
+                  echo "Invalid Target Branch: $BRANCH"
+                  exit 1
+                  ;;
+              esac
+
+              echo "ENV=$ENV" >> $GITHUB_ENV
+              echo "TFVARS_FILE=environments/$ENV/$ENV.tfvars" >> $GITHUB_ENV
+              echo "Using TFVARS file: environments/$ENV/$ENV.tfvars"
+
+        # Clear Cache
+      - name: Clear Cache
+        run: |
+          echo "Cleaning Cache..."
+
+          rm -rf .terraform
+          rm -f .terraform.lock.hcl
+          rm -rf ~/.tflint.d
+
+          rm -rf environments/${ENV}/.terraform
+          rm -f environments/${ENV}/.terraform.lock.hcl
+
+          echo "Cleanup Complete."
+
+        # Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+        # Initialize Terraform Without Backend
+      - name: Terraform Init
+        working-directory: .
+        run: terraform init -backend=false -var-file=${ENV}.tfvars
+
+        # Setup TFLint
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v6
+
+        # Azure TFLint config
+      - name: Configure Azure TFLint Rules
+        run: |
+          cat <<EOF > .tflint.hcl
+          config {
+            format = "compact"
+          }
+
+          plugin "azurerm" {
+            enabled = true
+            source  = "github.com/terraform-linters/tflint-ruleset-azurerm"
+            version = "0.27.0"
+          }
+
+          rule "terraform_unused_declarations" {
+            enabled = true
+            level   = "WARNING"
+          }
+          EOF
+
+        # TF Init
+      - name: Initialize TFLint
+        working-directory: .
+        run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      # Run RFLint
+      - name: Run TFLint
+        working-directory: .
+        run: |
+          echo "Running TFLint..."
+          tflint --format compact --var-file="${{ env.TFVARS_FILE }}" || true
+
+  checkov-security-analysis:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    name: Checkov Security Analysis
+    runs-on: ubuntu-latest
+    needs: tflint
+
+    outputs:
+      env_name: ${{ steps.set-env.outputs.env }}
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      # Set Env
+      - name: Determine Environment
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+                BRANCH="${{ github.base_ref }}"
+              else
+                BRANCH="${{ github.ref_name }}"
+              fi
+
+              case "$BRANCH" in
+                dev)
+                  ENV=dev
+                  ;;
+                staging)
+                  ENV=staging
+                  ;;
+                main)
+                  ENV=production
+                  ;;
+                *)
+                  echo "Invalid Target Branch: $BRANCH"
+                  exit 1
+                  ;;
+              esac
+
+              echo "ENV=$ENV" >> $GITHUB_ENV
+              echo "TFVARS_FILE=environments/$ENV/$ENV.tfvars" >> $GITHUB_ENV
+              echo "Using TFVARS file: environments/$ENV/$ENV.tfvars"
+
+        # Set Environment Output
+      - name: Set Environment Output
+        id: set-env
+        run: |
+          echo "Environment Detected: $ENV"
+          echo "env=${ENV}" >> $GITHUB_OUTPUT
+
+        # Clear Cache
+      - name: Clear Cache
+        run: |
+          echo "Cleaning Cache..."
+
+          rm -rf .terraform
+          rm -f .terraform.lock.hcl
+          rm -rf ~/.checkov
+
+          rm -rf environments/${ENV}/.terraform
+          rm -f environments/${ENV}/.terraform.lock.hcl
+
+          echo "Cleanup Complete."
+
+      #  Run Checkov
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          var_file: ${{ env.TFVARS_FILE }}
+          framework: terraform
+          check: CKV_AZURE_*
+          soft_fail: false
+          output_format: cli
+          download_external_modules: true
+
+          # HTTP (160) - Storage Account Replication(206) - Storage Queue Logging (33) - Storage Blob Restrict Public Access (190) - Storage accounts disallow public access(59) -VMSS have encryption at host enabled (97)
+          skip_check: CKV_AZURE_160,CKV_AZURE_206,CKV_AZURE_33,CKV_AZURE_190,CKV_AZURE_59,CKV_AZURE_97
+
+  trigger-plan-validation:
+    name: Trigger Plan Validation
+    runs-on: ubuntu-latest
+    needs: checkov-security-analysis
+
+    env:
+      ENV: ${{ needs.checkov-security-analysis.outputs.env_name }}
+
+    steps:
+      - name: Trigger Terraform Plan Validation Workflow
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "terraform-plan-validation.yml",
+              ref: context.ref,
+            });

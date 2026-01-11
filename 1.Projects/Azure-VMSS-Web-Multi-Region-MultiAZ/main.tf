@@ -1,17 +1,9 @@
-# Resource Group
-module "rg" {
-  source   = "./modules/resource-group"
-  name     = var.resource_group_name
-  location = var.location
-  tags     = var.tags
-}
-
 # Network
 module "network" {
-  source   = "./modules/network"
+  source   = "./Modules/Network"
   for_each = { for r in local.deploy_regions : r.name => r }
 
-  resource_group_name = module.rg.name
+  resource_group_name = var.resource_group_name
   location            = each.value.name
   vnet_name           = "vnet-${each.key}"
   address_space       = var.vnet_address_space
@@ -21,10 +13,10 @@ module "network" {
 
 # Load Balancer
 module "lb" {
-  source   = "./modules/load-balancer"
+  source   = "./Modules/Load-Balancer"
   for_each = { for r in local.deploy_regions : r.name => r }
 
-  resource_group_name = module.rg.name
+  resource_group_name = var.resource_group_name
   location            = each.value.name
   public_ip_name      = "public-lb-${each.key}"
   lb_name             = "web-lb-${each.key}"
@@ -46,7 +38,7 @@ locals {
     for r in module.regions.regions :
     r if r.name == local.primary_region.paired_region_name
   ][0], null)
-  
+
   deploy_regions = (
     local.paired_region == null ?
     [local.primary_region] :
@@ -72,8 +64,8 @@ locals {
 
 # VMSS
 module "vmss" {
-  source              = "./modules/vmss"
-  resource_group_name = module.rg.name
+  source              = "./Modules/VMSS"
+  resource_group_name = var.resource_group_name
   tags                = var.vmss_tags
   for_each            = { for r in local.deploy_regions : r.name => r }
 
@@ -85,7 +77,7 @@ module "vmss" {
 
 
   vm_admin_username = var.vm_admin_username
-  vm_admin_ssh_key  = file(var.ssh_public_key_path)
+  vm_admin_ssh_key  = var.ssh_public_key_path
   instance_count    = var.instance_count
   vm_size           = var.vm_size
 

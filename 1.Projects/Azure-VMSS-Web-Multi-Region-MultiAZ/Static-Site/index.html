@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Azure-VMSS-Web-Multi-Region-MultiAZ</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>Azure-VMSS-Web-Multi-Region-MultiAZ</h1>
+    </header>
+
+    <main>
+      <section>
+        <h2>Overview</h2>
+        <ul>
+          <li>
+            Terraform project provisions a highly available static website on
+            Microsoft Azure.
+          </li>
+          <li>
+            Automatically deploys a scalable, fault-tolerant web infrastructure
+            that serves content from GitHub.
+          </li>
+          <li>
+            Fully modular Terraform design separating networking, compute, and
+            load balancing components.
+          </li>
+          <li>
+            Reusable and cost effective—supports rapid deployment across
+            regions, zones, and subscriptions.
+          </li>
+          <li>
+            Multi-region deployment using Azure paired regions for increased
+            resilience and disaster recovery.
+          </li>
+          <li>
+            VM Scale Sets distributed across Availability Zones where supported
+            for zone-level fault tolerance.
+          </li>
+          <li>
+            Website updates deployed automatically through GitHub Actions on
+            each push to the main branch.
+          </li>
+          <li>
+            Configuration ensures Linux VMs are kept up to date with system and
+            package updates during provisioning.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Features</h2>
+        <ul>
+          <li>
+            Creates dedicated Azure Resource Group to isolate deployed
+            resources.
+          </li>
+          <li>
+            Deploys Azure Virtual Networks and subnets per region for secure,
+            scalable networking.
+          </li>
+          <li>
+            Implements Azure Load Balancer with public frontend IP and backend
+            pool for high availability.
+          </li>
+          <li>
+            Provisions VM Scale Sets across regions for horizontal scalability.
+          </li>
+          <li>
+            Distributes VM instances across Availability Zones where supported.
+          </li>
+          <li>
+            Installs and configures Apache and Git on each Linux VM during
+            provisioning.
+          </li>
+          <li>
+            Clones static website content from GitHub during VM bootstrap using
+            cloud-init.
+          </li>
+          <li>Maintains VM instances up to date during provisioning.</li>
+          <li>
+            Separates infrastructure deployment from application updates to
+            avoid unnecessary redeployments.
+          </li>
+          <li>
+            Uses GitHub Actions to deploy updated website content across VMSS
+            instances on each push.
+          </li>
+          <li>
+            Executes updates using Azure VMSS Run Command—no SSH or public IP
+            required.
+          </li>
+          <li>
+            Supports dynamic discovery of VM Scale Sets within a Resource Group.
+          </li>
+          <li>
+            Designed to scale to large numbers of VMSS without extra GitHub
+            secrets or Terraform state access.
+          </li>
+          <li>
+            Outputs key deployment details like resource group, VMSS IDs, load
+            balancer backend pool IDs, and public IPs.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Infrastructure</h2>
+        <pre>
+Azure-VMSS-Web-Multi-Region-MultiAZ
+└── Resource Group
+    ├── Network Security Groups
+    │   └── Inbound Rules (HTTP/SSH)
+    ├── Virtual Networks & Subnets
+    ├── Load Balancers (Primary & Paired Regions)
+    ├── Virtual Machine Scale Sets (Primary & Paired Regions)
+    ├── Automation & CI/CD
+    │   ├── GitHub Actions Workflows
+    │   └── Update Script (update_site.sh)
+    └── Static Website Content
+        ├── Stored in GitHub Repository
+        └── Served directly by Apache
+        </pre>
+      </section>
+
+      <section>
+        <h2>CI/CD Workflows Overview</h2>
+        <p>
+          Multiple GitHub Actions workflows securely manage Terraform
+          infrastructure, backend state, security scanning, and deployment
+          validation across environments. Workflows are chained to ensure safe,
+          controlled infrastructure changes with PR requests.
+        </p>
+      </section>
+
+      <section>
+        <h2>CI/CD Pipeline Overview</h2>
+        <pre>
+├── Automation & CI/CD
+│   ├── GitHub Actions Workflows
+│   │   ├── Static Code Analysis
+│   │   │   ├── TFLint
+│   │   │   ├── Checkov
+│   │   │   └── Terraform format & validation
+│   │   ├── Terraform Plan Validation
+│   │   ├── Backend State Validation
+│   │   ├── Backend Bootstrap (Conditional)
+│   │   ├── Terraform Apply (Controlled)
+│   │   └── Website Content Deployment
+│   └── Update Script (update_site.sh)
+        </pre>
+      </section>
+
+      <section>
+        <h2>
+          1. Static Analysis & Security Checks (Terraform + TFLint + Checkov)
+        </h2>
+        <ul>
+          <li>
+            Terraform Validation:
+            <ul>
+              <li>terraform fmt for consistent formatting</li>
+              <li>
+                terraform validate to check syntax and configuration correctness
+              </li>
+            </ul>
+          </li>
+          <li>
+            TFLint:
+            <ul>
+              <li>
+                Scans Terraform code for best-practice violations and deprecated
+                resources
+              </li>
+              <li>Identifies inefficient or unsafe configurations</li>
+              <li>Enforces Azure-specific rules</li>
+            </ul>
+          </li>
+          <li>
+            Checkov:
+            <ul>
+              <li>Detects insecure resource configurations</li>
+              <li>Enforces policy compliance</li>
+              <li>
+                Checks for missing encryption, logging, and access controls
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <p>
+          If checks fail, the pipeline stops immediately. Only passing pipelines
+          trigger the Plan Validation workflow.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Plan Validation Workflow</h2>
+        <ul>
+          <li>
+            Detects target environment based on branch (dev, staging, main)
+          </li>
+          <li>Loads environment-specific variables</li>
+          <li>Initializes Terraform with remote backend state</li>
+          <li>Runs terraform plan to validate changes before deployment</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. Backend Check Workflow</h2>
+        <p>
+          Validates Terraform backend configuration before infrastructure
+          changes.
+        </p>
+        <ul>
+          <li>Detect target environment from branch or inputs</li>
+          <li>
+            Configure backend using Resource Group, Storage Account, Container,
+            and State file key
+          </li>
+          <li>Check backend existence and accessibility</li>
+          <li>If missing, triggers Backend Bootstrap workflow</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. Backend Bootstrap Workflow</h2>
+        <ul>
+          <li>
+            Creates Terraform backend resources (Resource Group, Storage
+            Account, Blob Container)
+          </li>
+          <li>Assigns correct RBAC</li>
+          <li>Creates Event Hub & Monitoring</li>
+          <li>Migrates local state to remote backend</li>
+          <li>Supports multiple environments using separate state files</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>5. Infrastructure Deployment Workflow</h2>
+        <ul>
+          <li>Terraform initializes using correct remote state</li>
+          <li>Environment-specific variables loaded dynamically</li>
+          <li>Applies infrastructure using terraform apply</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6. Website Changes Workflow</h2>
+        <ul>
+          <li>
+            Initial content deployed via cloud-init during VM provisioning
+          </li>
+          <li>Triggered on pushes to main branch (Static Site directory)</li>
+          <li>Subsequent updates handled independently using GitHub Actions</li>
+          <li>Authenticates to Azure using a Service Principal</li>
+          <li>
+            Dynamically discovers all VM Scale Sets in the target Resource
+            Group.</li>
+            <li>
+            Executes a shell script on each VMSS using
+            <code>az vmss run-command invoke</code>.
+          </li>
+          </li>
+            Updates all VMSS instances automatically without SSH or
+            public IP access
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Infrastructure Details</h2>
+        <ul>
+          <li>
+            Load Balancer distributes web traffic evenly across all VM
+            instances.
+          </li>
+          <li>
+            Each VM runs Apache and serves content from the GitHub repository.
+          </li>
+          <li>
+            When a change is pushed to the GitHub repository, a GitHub Action
+            automatically deploys the latest version of the site to all running
+            VMs.
+          </li>
+          <li>
+            VM Scale Set ensures scalability and high availability across
+            multiple zones.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Automated Website Update Flow</h2>
+        <ul>
+          <li>
+            Terraform provisions the VMSS and installs Apache and Git using
+            cloud-init.
+          </li>
+          <li>
+            Initial website content is cloned from GitHub during VM creation.
+          </li>
+          <li>
+            GitHub Actions workflow is triggered on every push to the main
+            branch.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Each VM Performs</h2>
+        <ul>
+          <li>Pulls the latest version of the repository.</li>
+          <li>Copies updated static site files into the Apache web root.</li>
+          <li>Restarts Apache to serve the new content.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Deployment Instructions</h2>
+        <ol>
+          <li>
+            <strong>Clone this repository:</strong>
+            <pre>
+git clone https://github.com/Jammy-1/Mastering-Cloud
+cd Mastering-Cloud/1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/
+      </pre
+            >
+          </li>
+          <li>
+            <strong>Configure Terraform variables:</strong>
+            <pre>
+resource_group_name = "rg-static-website"
+location = "UK South"
+github_repo = "https://github.com/your-org/your-repo"
+github_branch = "main"
+vm_admin_username = "azureuser"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+instance_count = 2
+vm_size = "Standard_B2s"
+      </pre
+            >
+            <p>
+              Only public repositories are supported for this configuration.
+            </p>
+          </li>
+          <li>
+            <strong>Initialize Terraform:</strong>
+            <pre>terraform init</pre>
+          </li>
+          <li>
+            <strong>Preview the deployment plan:</strong>
+            <pre>terraform plan</pre>
+          </li>
+          <li>
+            <strong>Deploy the infrastructure:</strong>
+            <pre>terraform apply</pre>
+          </li>
+          <li>
+            <strong>Access your website:</strong>
+            <pre>terraform output public_ip</pre>
+            <p>
+              Open <code>http://&lt;public_ip&gt;</code> in your browser to view
+              the site.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Outputs</h2>
+        <ul>
+          <li>
+            <strong>resource_group_name</strong> – Name of the deployed Resource
+            Group
+          </li>
+          <li>
+            <strong>vmss_id</strong> – The ID of the Virtual Machine Scale Set
+          </li>
+          <li>
+            <strong>backend_address_pool_id</strong> – The Load Balancer backend
+            pool ID
+          </li>
+          <li>
+            <strong>public_ip</strong> – The public IP address of the Load
+            Balancer
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

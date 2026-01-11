@@ -1,7 +1,7 @@
 # Terraform TFVARS Example 
 
 # Project Defaults
-resource_group_name = "HA-Static-Web-Server-Public-Repo"
+resource_group_name = "Azure-VMSS-Web-Multi-Region-MultiAZ"
 location            = "ukwest"
 
 tags = {
@@ -27,6 +27,6 @@ instance_count = 2
 vm_size        = "Standard_B1ms"
 
 # GitHub Repository 
-github_repo    = "https://github.com/Jammy-1/Azure-Highly-Available-Static-Website.git"
+github_repo    = "https://github.com/Jammy-1/Azure-VMSS-Web-Multi-Region-MultiAZ"
 github_branch  = "main"
 github_private = false

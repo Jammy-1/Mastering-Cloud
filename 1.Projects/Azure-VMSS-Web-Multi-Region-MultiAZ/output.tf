@@ -1,4 +1,4 @@
-output "resource_group_name" { value = module.rg.name }
+output "resource_group_name" { value = var.resource_group_name }
 
 
 output "vmss_per_region" {

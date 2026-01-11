@@ -2,11 +2,11 @@
 set -e
 
 # Config
-REPO_URL="https://github.com/Jammy-1/Mastering-Cloud.git"
+REPO_URL="https://github.com/Jammy-1/Azure-VMSS-Web-Multi-Region-MultiAZ.git"
 BRANCH="main"
 SITE_PATH="/opt/myrepo"
 WEB_ROOT="/var/www/html"
-PROJECT_PATH="1.Projects/Azure-VMSS-Web-Multi-Region-MultiAZ/Static Site"
+PROJECT_PATH="Static-Site"
 
 # Logging
 LOG_DIR="/var/log/site_update"
